@@ -22,6 +22,7 @@ show:             ## Show the current environment.
 install:          ## Install the project in dev mode.
 	@if [ "$(USING_POETRY)" ]; then poetry install && exit; fi
 	@echo "Don't forget to run 'make virtualenv' if you got errors."
+	$(ENV_PREFIX)pip install -r requirements-torch.txt
 	$(ENV_PREFIX)pip install -e .[test]
 
 .PHONY: fmt
@@ -32,7 +33,7 @@ fmt:              ## Format code using black & isort.
 
 .PHONY: lint
 lint:             ## Run pep8, black, mypy linters.
-	$(ENV_PREFIX)flake8 drivellava/
+	$(ENV_PREFIX)flake8 --per-file-ignores="*.py:E203" drivellava/
 	$(ENV_PREFIX)black -l 79 --check drivellava/
 	$(ENV_PREFIX)black -l 79 --check tests/
 	$(ENV_PREFIX)mypy --ignore-missing-imports drivellava/
