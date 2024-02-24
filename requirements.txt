@@ -3,3 +3,4 @@ deepspeed
 wandb
 opencv-python
 onnxruntime-gpu==1.15.0
+scipy

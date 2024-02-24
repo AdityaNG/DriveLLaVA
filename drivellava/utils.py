@@ -2,6 +2,7 @@ import cv2
 import numpy as np
 import torch
 import torchvision
+from scipy.signal import savgol_filter
 
 comma_inv_transform = torchvision.transforms.Compose(
     [
@@ -96,7 +97,7 @@ def get_rect_coords(x_i, y_i, x_j, y_j, width=2.83972):
     return points
 
 
-def get_rect_coords_3D(Pi, Pj, width=2.83972):
+def get_rect_coords_3D(Pi, Pj, width=0.25):
     x_i, y_i = Pi[0, 0], Pi[2, 0]
     x_j, y_j = Pj[0, 0], Pj[2, 0]
     points_2D = get_rect_coords(x_i, y_i, x_j, y_j, width)
@@ -115,48 +116,45 @@ def get_rect_coords_3D(Pi, Pj, width=2.83972):
 def plot_steering_traj(
     frame_center,
     trajectory,
-    # shape = (1920, 1080),
-    shape=(1080, 1920),
     color=(255, 0, 0),
     intrinsic_matrix=None,
     DistCoef=None,
-    offsets=[0.0, -5.5, 0.0],
+    # offsets=[0.0, 1.5, 1.0],
+    offsets=[0.0, -0.75, 0.0],
     method="add_weighted",
 ):
     assert method in ("overlay", "mask", "add_weighted")
-
-    # Save frame_center shape
-    frame_center_shape = frame_center.shape[:2]
-    # Resize frame_center to shape
-    frame_center = cv2.resize(
-        frame_center, shape[::-1], interpolation=cv2.INTER_AREA
-    )
-
     if intrinsic_matrix is None:
+        # intrinsic_matrix = np.array([
+        #     [525.5030,         0,    333.4724],
+        #     [0,         531.1660,    297.5747],
+        #     [0,              0,    1.0],
+        # ])
         intrinsic_matrix = np.array(
             [
-                [1250.6, 0, 978.4],
-                [0, 1254.8, 562.1],
+                [525.5030, 0, 256.0 / 2],
+                [0, 531.1660, 128.0 / 2],
                 [0, 0, 1.0],
             ]
         )
     if DistCoef is None:
         DistCoef = np.array(
             [
-                0.0936,  # k1
-                -0.5403,  # k2
-                7.2525e-04,  # p1
-                0.0084,  # p2
-                0.7632,  # k3
+                0.0177,
+                3.8938e-04,  # Tangential Distortion
+                -0.1533,
+                0.4539,
+                -0.6398,  # Radial Distortion
             ]
         )
-
     h, w = frame_center.shape[:2]
     newcameramtx, roi = cv2.getOptimalNewCameraMatrix(
         intrinsic_matrix, DistCoef, (w, h), 1, (w, h)
     )
     homo_cam_mat = np.hstack((intrinsic_matrix, np.zeros((3, 1))))
 
+    # rot = trajectory[0][:3,:3]
+    # rot = np.eye(3,3)
     prev_point = None
     prev_point_3D = None
     rect_frame = np.zeros_like(frame_center)
@@ -166,10 +164,12 @@ def plot_steering_traj(
         p3d = np.array(
             [
                 trajectory_point[0] * 1 - offsets[0],
-                trajectory_point[1] * 1 - offsets[1],
+                # trajectory_point[1] * 1 - offsets[1],
+                -offsets[1],
                 trajectory_point[2] * 1 - offsets[2],
             ]
         ).reshape((3, 1))
+        # p3d = np.linalg.inv(rot) @ p3d
         p4d[:3, :] = p3d
 
         p2d = (homo_cam_mat) @ p4d
@@ -191,6 +191,7 @@ def plot_steering_traj(
                     rect_frame = cv2.fillPoly(
                         rect_frame, pts=[rect_coords], color=color
                     )
+
                     frame_center = cv2.line(
                         frame_center, (px_p, py_p), (px, py), color, 2
                     )
@@ -210,15 +211,9 @@ def plot_steering_traj(
         )
         frame_center[mask] = color
     elif method == "overlay":
-        frame_center += (0.5 * rect_frame).astype(np.uint8)
+        frame_center += (0.2 * rect_frame).astype(np.uint8)
     elif method == "add_weighted":
-        cv2.addWeighted(frame_center, 0.6, rect_frame, 0.4, 0.0, frame_center)
-
-    # Resize frame_center back to frame_center_shape
-    frame_center = cv2.resize(
-        frame_center, frame_center_shape[::-1], interpolation=cv2.INTER_AREA
-    )
-
+        cv2.addWeighted(frame_center, 1.0, rect_frame, 0.2, 0.0, frame_center)
     return frame_center
 
 
@@ -229,10 +224,10 @@ def plot_bev_trajectory(trajectory, frame_center, color=(0, 255, 0)):
     Z = trajectory[:, 2]
     X = trajectory[:, 0]
 
-    RAN = 80.0
+    RAN = 20.0
     X_min, X_max = -RAN, RAN
-    Z_min, Z_max = -RAN, RAN
-    # Z_min, Z_max = 0.0, RAN
+    # Z_min, Z_max = -RAN, RAN
+    Z_min, Z_max = -0.1 * RAN, RAN
     X = (X - X_min) / (X_max - X_min)
     Z = (Z - Z_min) / (Z_max - Z_min)
 
@@ -259,7 +254,7 @@ def plot_bev_trajectory(trajectory, frame_center, color=(0, 255, 0)):
     return traj_plot
 
 
-def smoothen_traj(trajectory, window_size=3):
+def smoothen_traj(trajectory, window_size=4):
     """
     Smoothen a trajectory using moving average.
 
@@ -273,22 +268,61 @@ def smoothen_traj(trajectory, window_size=3):
     smoothed_traj = []
     num_points = len(trajectory)
 
+    half_window = window_size // 2
+
     # Handle edge cases
     if num_points <= window_size:
         return trajectory
 
     # Calculate the moving average for each point
     for i in range(num_points):
-        window_start = max(0, i - window_size + 1)
-        window_end = min(i + 1, num_points)
+        window_start = max(0, i - half_window + 1)
+        window_end = min(i + half_window + 1, num_points)
         window_points = trajectory[window_start:window_end]
-        avg_point = (
-            sum(p[0] for p in window_points) / len(window_points),
-            sum(p[1] for p in window_points) / len(window_points),
-            sum(p[2] for p in window_points) / len(window_points),
-        )
+        # avg_point = (
+        #     sum(p[0] for p in window_points) / (window_end - window_start),
+        #     sum(p[1] for p in window_points) / (window_end - window_start),
+        #     sum(p[2] for p in window_points) / (window_end - window_start),
+        #     sum(p[3] for p in window_points) / (window_end - window_start),
+        #     sum(p[4] for p in window_points) / (window_end - window_start),
+        #     sum(p[5] for p in window_points) / (window_end - window_start),
+        # )
+        avg_point = np.mean(window_points, axis=0)
+
         smoothed_traj.append(avg_point)
 
     smoothed_traj = np.array(smoothed_traj)
 
     return smoothed_traj
+
+
+def remove_noise(pose_matrix, window_length=5, polyorder=2):
+    """
+    Applies a Savitzky-Golay filter to remove high-frequency noise from the
+    pose data.
+
+    Parameters:
+    - pose_matrix (numpy.ndarray): An (N, 6) array representing the motion of
+      a car, with each pose being (x, y, z, roll, pitch, yaw) in meters
+      and radians.
+    - window_length (int): The length of the filter window (i.e., the number
+      of coefficients).
+      `window_length` must be a positive odd integer.
+    - polyorder (int): The order of the polynomial used to fit the samples.
+      `polyorder` must be less than `window_length`.
+
+    Returns:
+    - numpy.ndarray: The smoothed pose matrix.
+    """
+    if window_length % 2 == 0:
+        raise ValueError("window_length must be an odd integer")
+    if polyorder >= window_length:
+        raise ValueError("polyorder must be less than window_length")
+
+    smoothed_pose = np.zeros_like(pose_matrix)
+    for i in range(pose_matrix.shape[1]):
+        smoothed_pose[:, i] = savgol_filter(
+            pose_matrix[:, i], window_length, polyorder
+        )
+
+    return smoothed_pose

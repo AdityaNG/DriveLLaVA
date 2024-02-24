@@ -24,6 +24,7 @@ COMMAVQ_DIR = os.path.expanduser("~/Datasets/commavq")
 # List of all the videos
 ENCODED_VIDEOS_ALL = glob(os.path.join(COMMAVQ_DIR, "*", "*.npy"))
 ENCODED_VIDEOS_ALL = [x for x in ENCODED_VIDEOS_ALL if os.path.isfile(x)]
+# ENCODED_VIDEOS_ALL = sorted(ENCODED_VIDEOS_ALL)
 
 ENCODED_POSE = glob(os.path.join(COMMAVQ_DIR, "*", "*.npy"))
 ENCODED_POSE = [x for x in ENCODED_POSE if os.path.isfile(x)]

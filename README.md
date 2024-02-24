@@ -31,10 +31,14 @@ $ drivellava
 
 Read the [CONTRIBUTING.md](CONTRIBUTING.md) file.
 
-## Dataset setup
+## Running the scripts
 
 ```python3
 python3 -m drivellava.scripts.generate_commavq_images
+```
+
+```python3
+python3 -m drivellava.scripts.visualize_pose
 ```
 
 ## TODO
@@ -44,6 +48,7 @@ python3 -m drivellava.scripts.generate_commavq_images
   - Measure memory requirements
 - Dataset
   - Generate images from CommaVQ
+  - Denoise the trajectory
   - Quantize the trajectory
   - Visualize the trajectory on the image
   - Generate JSON dataset
