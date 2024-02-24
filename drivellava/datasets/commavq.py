@@ -2,12 +2,9 @@ import os
 
 import numpy as np
 
-from drivellava.utils import (
-    remove_noise,
-)
-from drivellava.trajectory_encoder import (
-    TrajectoryEncoder
-)
+from drivellava.trajectory_encoder import TrajectoryEncoder
+from drivellava.utils import remove_noise
+
 
 class CommaVQPoseDataset:
     def __init__(
@@ -21,7 +18,7 @@ class CommaVQPoseDataset:
         self.pose_path = pose_path
         self.num_frames = num_frames
         pose = np.load(pose_path)
-        
+
         # Inches to meters
         pose[:, :3] *= 0.0254
         pose[:, 1] = 0.0
@@ -36,10 +33,10 @@ class CommaVQPoseDataset:
         pose[np.isinf(pose)] = 0
 
         self.pose = pose
-    
+
     def __len__(self):
         return len(self.pose)
-    
+
     def __getitem__(self, index):
         sub_pose = get_local_pose(
             self.pose,
@@ -54,11 +51,10 @@ class CommaVQPoseDataset:
 
         return trajectory
 
+
 class CommaVQPoseQuantizedDataset(CommaVQPoseDataset):
 
-    def __init__(
-        self, *args, **kwargs
-    ):
+    def __init__(self, *args, **kwargs):
         assert "trajectory_encoder" in kwargs
         trajectory_encoder = kwargs.pop("trajectory_encoder")
         assert isinstance(trajectory_encoder, TrajectoryEncoder)
@@ -66,12 +62,12 @@ class CommaVQPoseQuantizedDataset(CommaVQPoseDataset):
         super().__init__(*args, **kwargs)
 
         self.trajectory_encoder = trajectory_encoder
-        
-    
+
     def __getitem__(self, index):
         trajectory = super().__getitem__(index)
         trajectory_encoded = self.trajectory_encoder.encode(trajectory)
         return trajectory, trajectory_encoded
+
 
 def get_local_pose(
     pose: np.ndarray,
@@ -100,6 +96,7 @@ def get_local_pose(
     sub_pose[1:, :3] += sub_pose[:-1, :3]
 
     return sub_pose
+
 
 def get_rotation_matrix(pose):
     """
@@ -133,4 +130,3 @@ def get_rotation_matrix(pose):
     rot = np.dot(rot_z, np.dot(rot_y, rot_x))
 
     return rot
-

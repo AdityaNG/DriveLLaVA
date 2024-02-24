@@ -326,3 +326,28 @@ def remove_noise(pose_matrix, window_length=5, polyorder=2):
         )
 
     return smoothed_pose
+
+
+@torch.no_grad()
+def decode_image(
+    decoder_onnx,
+    embeddings,
+    batch_size,
+    device=torch.device("cpu"),
+):
+    encoding_indices_future_onnx = embeddings.astype(np.int64)
+    frames = decoder_onnx.run(
+        None, {"encoding_indices": encoding_indices_future_onnx}
+    )[0]
+
+    frames = torch.tensor(frames).to(device=device)
+
+    frames = comma_inv_transform_batch(
+        frames,
+        batch_size,
+        device,
+    )
+
+    frames = frames.cpu().numpy()
+
+    return frames

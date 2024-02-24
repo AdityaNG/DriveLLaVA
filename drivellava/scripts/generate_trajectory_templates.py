@@ -5,38 +5,31 @@ Generates image frames for the commavq dataset
 import pickle
 
 import cv2
-import numpy as np
-from tqdm import tqdm
 import matplotlib.pyplot as plt
+import numpy as np
 from sklearn.cluster import KMeans
+from tqdm import tqdm
 
 from drivellava.constants import ENCODED_POSE_ALL
-from drivellava.utils import (
-    plot_bev_trajectory,
-    plot_steering_traj,
-)
-
+from drivellava.datasets.commavq import CommaVQPoseDataset
 from drivellava.trajectory_encoder import (
     NUM_TRAJECTORY_TEMPLATES,
     TRAJECTORY_SIZE,
 )
-
-from drivellava.datasets.commavq import CommaVQPoseDataset
+from drivellava.utils import plot_bev_trajectory, plot_steering_traj
 
 
 def main():
 
     NUM_FRAMES = TRAJECTORY_SIZE
     WINDOW_LENGTH = 21 * 2 - 1
-    SKIP_FRAMES = 20 * 1
+    SKIP_FRAMES = 20 * 10
     K = NUM_TRAJECTORY_TEMPLATES
     PLOT_TRAJ = False
 
     trajectories = []
 
-    for pose_path in tqdm(
-        ENCODED_POSE_ALL, desc="Loading trajectories"
-    ):
+    for pose_path in tqdm(ENCODED_POSE_ALL, desc="Loading trajectories"):
         pose_dataset = CommaVQPoseDataset(
             pose_path,
             num_frames=NUM_FRAMES,
@@ -47,7 +40,7 @@ def main():
         # Iterate over the embeddings in batches and decode the images
         for i in tqdm(
             range(
-                WINDOW_LENGTH,len(pose_dataset) - WINDOW_LENGTH, SKIP_FRAMES
+                WINDOW_LENGTH, len(pose_dataset) - WINDOW_LENGTH, SKIP_FRAMES
             ),
             desc="Video",
             disable=True,
@@ -110,34 +103,48 @@ def main():
                 elif key == ord("n"):
                     break
 
-    print('Running K-MEANs on the trajectories', len(trajectories))
+    print("Running K-MEANs on the trajectories", len(trajectories))
     kmeans = KMeans(n_clusters=K, random_state=0).fit(trajectories)
-    proposed_trajectory_templates = [centroid.reshape((NUM_FRAMES, 2)) for centroid in kmeans.cluster_centers_]
+    proposed_trajectory_templates = [
+        centroid.reshape((NUM_FRAMES, 2))
+        for centroid in kmeans.cluster_centers_
+    ]
 
     # Save the kmeans object as trajectory_templates/kmeans.pkl
-    with open(f'trajectory_templates/kmeans_{str(K)}.pkl', 'wb') as f:
+    with open(f"trajectory_templates/kmeans_{str(K)}.pkl", "wb") as f:
         pickle.dump(kmeans, f)
 
     # Plotting the trajectory templates
     plt.figure(figsize=(10, 6))
     for template in proposed_trajectory_templates:
         plt.plot(template[:, 0], template[:, 1], alpha=0.5)
-    plt.xlabel('X')
-    plt.ylabel('Y')
+    plt.xlabel("X")
+    plt.ylabel("Y")
 
     # X lim
     plt.xlim(-10, 10)
     # Y lim
     plt.ylim(-1, 40)
 
-    plt.title('Proposed Trajectory Templates')
-    plt.savefig(f'trajectory_templates/trajectory_templates_{str(K)}.png')  # Saving the plot
+    plt.title("Proposed Trajectory Templates")
+    plt.savefig(
+        f"trajectory_templates/trajectory_templates_{str(K)}.png"
+    )  # Saving the plot
     plt.show()
 
     # Saving the templates as a NumPy file
-    proposed_trajectory_templates_np = np.array(proposed_trajectory_templates, dtype=np.float32)
-    print('proposed_trajectory_templates_np.shape', proposed_trajectory_templates_np.shape)
-    np.save(f'trajectory_templates/proposed_trajectory_templates_{str(K)}.npy', proposed_trajectory_templates_np, allow_pickle=False)
+    proposed_trajectory_templates_np = np.array(
+        proposed_trajectory_templates, dtype=np.float32
+    )
+    print(
+        "proposed_trajectory_templates_np.shape",
+        proposed_trajectory_templates_np.shape,
+    )
+    np.save(
+        f"trajectory_templates/proposed_trajectory_templates_{str(K)}.npy",
+        proposed_trajectory_templates_np,
+        allow_pickle=False,
+    )
 
 
 if __name__ == "__main__":

@@ -45,6 +45,14 @@ python3 -m drivellava.scripts.visualize_pose
 python3 -m drivellava.scripts.generate_trajectory_templates
 ```
 
+```python3
+python3 -m drivellava.scripts.generate_sparse_llava_dataset
+```
+
+```bash
+./scripts/extract_zips.sh ~/Datasets/commavq/ ~/Datasets/commavq
+```
+
 ## TODO
 
 - Training script

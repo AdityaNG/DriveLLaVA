@@ -8,39 +8,47 @@ import cv2
 import numpy as np
 from tqdm import tqdm
 
-from drivellava.constants import DECODED_IMGS_ALL_AVAILABLE
-from drivellava.utils import (
-    plot_bev_trajectory,
-    plot_steering_traj,
-)
-
+from drivellava.constants import ENCODED_VIDEOS_ALL, get_image_path
 from drivellava.datasets.commavq import CommaVQPoseQuantizedDataset
 from drivellava.trajectory_encoder import (
-    TrajectoryEncoder,
     NUM_TRAJECTORY_TEMPLATES,
     TRAJECTORY_SIZE,
-    TRAJECTORY_TEMPLATES_NPY,
     TRAJECTORY_TEMPLATES_KMEANS_PKL,
+    TRAJECTORY_TEMPLATES_NPY,
+    TrajectoryEncoder,
 )
+from drivellava.utils import plot_bev_trajectory, plot_steering_traj
+
 
 def main():
 
     NUM_FRAMES = 20 * 1
 
-    for encoded_video_path in tqdm(
-        DECODED_IMGS_ALL_AVAILABLE.keys(), desc="npy files"
-    ):
-        decoded_imgs_list = DECODED_IMGS_ALL_AVAILABLE[encoded_video_path]
+    for encoded_video_path in tqdm(ENCODED_VIDEOS_ALL, desc="npy files"):
+        if not os.path.isfile(encoded_video_path):
+            continue
+
+        decoded_imgs_list = []
+
+        for frame_index in range(1200):
+            frame_path = get_image_path(encoded_video_path, frame_index)
+            decoded_imgs_list.append(frame_path)
+
         pose_path = encoded_video_path.replace("data_", "pose_data_").replace(
             "val", "pose_val"
         )
-        print(pose_path)
+
+        # print(encoded_video_path, pose_path)
+        # exit()
+
+        if not os.path.isfile(pose_path):
+            continue
 
         trajectory_encoder = TrajectoryEncoder(
-            num_trajectory_templates = NUM_TRAJECTORY_TEMPLATES,
-            trajectory_size = TRAJECTORY_SIZE,
-            trajectory_templates_npy = TRAJECTORY_TEMPLATES_NPY,
-            trajectory_templates_kmeans_pkl = TRAJECTORY_TEMPLATES_KMEANS_PKL,
+            num_trajectory_templates=NUM_TRAJECTORY_TEMPLATES,
+            trajectory_size=TRAJECTORY_SIZE,
+            trajectory_templates_npy=TRAJECTORY_TEMPLATES_NPY,
+            trajectory_templates_kmeans_pkl=TRAJECTORY_TEMPLATES_KMEANS_PKL,
         )
 
         pose_dataset = CommaVQPoseQuantizedDataset(
@@ -53,8 +61,12 @@ def main():
 
         # Iterate over the embeddings in batches and decode the images
         for i in tqdm(
-            range(0, len(decoded_imgs_list) - NUM_FRAMES, 1), desc="Video"
+            range(0, len(decoded_imgs_list) - NUM_FRAMES, 1),
+            desc="Video",
+            disable=True,
         ):
+            if not os.path.isfile(decoded_imgs_list[i]):
+                continue
             img = cv2.imread(decoded_imgs_list[i])
 
             trajectory, trajectory_encoded = pose_dataset[i]
@@ -93,9 +105,7 @@ def main():
                 color=(0, 255, 0),
             )
 
-            img_bev = plot_bev_trajectory(
-                trajectory, img, color=(255, 0, 0)
-            )
+            img_bev = plot_bev_trajectory(trajectory, img, color=(255, 0, 0))
             img_bev = plot_bev_trajectory(
                 trajectory_quantized, img, color=(0, 255, 0)
             )
@@ -125,7 +135,7 @@ def main():
                 "frame_path_bev", cv2.resize(img_bev, (0, 0), fx=2, fy=2)
             )
 
-            key = cv2.waitKey(1)
+            key = cv2.waitKey(1000)
 
             if key == ord("q"):
                 exit()

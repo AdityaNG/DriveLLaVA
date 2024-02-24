@@ -6,41 +6,15 @@ import os
 
 import cv2
 import numpy as np
-import torch
 from tqdm import tqdm
 
 from drivellava.constants import (
-    DECODED_IMGS_ALL,
     DECODER_ONNX_PATH,
     ENCODED_VIDEOS_ALL,
+    get_image_path,
 )
 from drivellava.onnx import load_model_from_onnx_comma
-from drivellava.utils import comma_inv_transform_batch
-
-
-@torch.no_grad()
-def decode_image(
-    decoder_onnx,
-    embeddings,
-    batch_size,
-    device=torch.device("cpu"),
-):
-    encoding_indices_future_onnx = embeddings.astype(np.int64)
-    frames = decoder_onnx.run(
-        None, {"encoding_indices": encoding_indices_future_onnx}
-    )[0]
-
-    frames = torch.tensor(frames).to(device=device)
-
-    frames = comma_inv_transform_batch(
-        frames,
-        batch_size,
-        device,
-    )
-
-    frames = frames.cpu().numpy()
-
-    return frames
+from drivellava.utils import decode_image
 
 
 def main():
@@ -53,7 +27,8 @@ def main():
 
         skip = True
 
-        for frame_path in DECODED_IMGS_ALL[encoded_video_path]:
+        for frame_index in range(1200):
+            frame_path = get_image_path(encoded_video_path, frame_index)
             if not os.path.exists(frame_path):
                 skip = False
                 break
@@ -71,10 +46,8 @@ def main():
         for i in tqdm(range(0, len(embeddings), batch_size), desc="Video"):
             # Skip check
             if all(
-                os.path.exists(x)
-                for x in DECODED_IMGS_ALL[encoded_video_path][
-                    i : i + batch_size
-                ]
+                os.path.exists(get_image_path(encoded_video_path, x))
+                for x in range(i, i + batch_size)
             ):
                 print(f"Skipping {encoded_video_path} {i}:{i + batch_size}")
                 continue
@@ -89,7 +62,7 @@ def main():
             # Save the frames
             for j, frame in enumerate(frames):
                 frame_index = i + j
-                frame_path = DECODED_IMGS_ALL[encoded_video_path][frame_index]
+                frame_path = get_image_path(encoded_video_path, frame_index)
                 os.makedirs(os.path.dirname(frame_path), exist_ok=True)
                 # frame = (frame *).astype(np.uint8)
                 cv2.imwrite(frame_path, frame)

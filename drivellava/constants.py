@@ -22,66 +22,39 @@ class Indexable(object):
 COMMAVQ_DIR = os.path.expanduser("~/Datasets/commavq")
 
 # List of all the videos
-ENCODED_VIDEOS_ALL = glob(os.path.join(COMMAVQ_DIR, "*", "*.npy"))
-ENCODED_VIDEOS_ALL = [x for x in ENCODED_VIDEOS_ALL if os.path.isfile(x)]
+ENCODED_VIDEOS_ALL = glob(os.path.join(COMMAVQ_DIR, "data_*", "*.npy"))
+ENCODED_VIDEOS_ALL += glob(os.path.join(COMMAVQ_DIR, "val", "*.npy"))
+# ENCODED_VIDEOS_ALL = [x for x in ENCODED_VIDEOS_ALL if os.path.isfile(x)]
 # ENCODED_VIDEOS_ALL = sorted(ENCODED_VIDEOS_ALL)
 
 ENCODED_POSE_ALL = glob(os.path.join(COMMAVQ_DIR, "pose_data_*", "*.npy"))
-ENCODED_POSE_ALL = [x for x in ENCODED_POSE_ALL if os.path.isfile(x)]
+# ENCODED_POSE_ALL = [x for x in ENCODED_POSE_ALL if os.path.isfile(x)]
 
 # List of all the encoded videos
 ENCODED_VIDEOS = glob(os.path.join(COMMAVQ_DIR, "data_*_to_*", "*.npy"))
-ENCODED_VIDEOS = [x for x in ENCODED_VIDEOS if os.path.isfile(x)]
+# ENCODED_VIDEOS = [x for x in ENCODED_VIDEOS if os.path.isfile(x)]
 
 ENCODED_POSE = glob(os.path.join(COMMAVQ_DIR, "pose_data_*_to_*", "*.npy"))
-ENCODED_POSE = [x for x in ENCODED_POSE if os.path.isfile(x)]
+# ENCODED_POSE = [x for x in ENCODED_POSE if os.path.isfile(x)]
 
 VAL_ENCODED_VIDEOS = glob(os.path.join(COMMAVQ_DIR, "val", "*.npy"))
-VAL_ENCODED_VIDEOS = [x for x in VAL_ENCODED_VIDEOS if os.path.isfile(x)]
+# VAL_ENCODED_VIDEOS = [x for x in VAL_ENCODED_VIDEOS if os.path.isfile(x)]
 
 VAL_ENCODED_POSE = glob(os.path.join(COMMAVQ_DIR, "pose_val", "*.npy"))
-VAL_ENCODED_POSE = [x for x in VAL_ENCODED_POSE if os.path.isfile(x)]
+# VAL_ENCODED_POSE = [x for x in VAL_ENCODED_POSE if os.path.isfile(x)]
 
-DECODED_IMGS = {
-    x: (
-        list(
-            os.path.join(
-                x.replace("data_", "img_data_").replace(".npy", ""), f"{j}.png"
-            )
-            for j in range(1200)
-        )
+
+def get_image_path(encoded_video_path: str, index: int) -> str:
+    return os.path.join(
+        encoded_video_path.replace("val", "img_val").replace(".npy", ""),
+        f"{index}.png",
     )
-    for x in ENCODED_VIDEOS_ALL
-}
 
-VAL_DECODED_IMGS = {
-    x: (
-        list(
-            os.path.join(
-                x.replace("val", "img_val").replace(".npy", ""), f"{j}.png"
-            )
-            for j in range(1200)
-        )
+
+def get_json(encoded_video_path: str) -> str:
+    return encoded_video_path.replace("val", "img_val").replace(
+        ".npy", ".json"
     )
-    for x in VAL_ENCODED_VIDEOS
-}
-
-DECODED_IMGS_ALL = {**DECODED_IMGS, **VAL_DECODED_IMGS}
-
-# Find available images
-
-DECODED_IMGS_AVAILABLE = {
-    k: [x for x in v if os.path.isfile(x)] for k, v in DECODED_IMGS_ALL.items()
-}
-
-VAL_DECODED_IMGS_AVAILABLE = {
-    k: [x for x in v if os.path.isfile(x)] for k, v in VAL_DECODED_IMGS.items()
-}
-
-DECODED_IMGS_ALL_AVAILABLE = {
-    **DECODED_IMGS_AVAILABLE,
-    **VAL_DECODED_IMGS_AVAILABLE,
-}
 
 
 COMMAVQ_GPT2M_DIR = os.path.expanduser("~/Datasets/commavq-gpt2m")
@@ -98,4 +71,6 @@ assert len(VAL_ENCODED_VIDEOS) > 0
 assert len(ENCODED_POSE) > 0
 assert len(VAL_ENCODED_VIDEOS) > 0
 
-# print('DECODED_IMGS', DECODED_IMGS)
+# COMMA_LLAVA_SPARSE_JSON_DATASET = os.path.join(
+#     COMMAVQ_DIR, "comma_llava_sparse.json"
+# )
