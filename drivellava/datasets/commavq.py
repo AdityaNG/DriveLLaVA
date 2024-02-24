@@ -5,6 +5,9 @@ import numpy as np
 from drivellava.utils import (
     remove_noise,
 )
+from drivellava.trajectory_encoder import (
+    TrajectoryEncoder
+)
 
 class CommaVQPoseDataset:
     def __init__(
@@ -50,6 +53,25 @@ class CommaVQPoseDataset:
         trajectory = trajectory[:, [2, 1, 0]]
 
         return trajectory
+
+class CommaVQPoseQuantizedDataset(CommaVQPoseDataset):
+
+    def __init__(
+        self, *args, **kwargs
+    ):
+        assert "trajectory_encoder" in kwargs
+        trajectory_encoder = kwargs.pop("trajectory_encoder")
+        assert isinstance(trajectory_encoder, TrajectoryEncoder)
+
+        super().__init__(*args, **kwargs)
+
+        self.trajectory_encoder = trajectory_encoder
+        
+    
+    def __getitem__(self, index):
+        trajectory = super().__getitem__(index)
+        trajectory_encoded = self.trajectory_encoder.encode(trajectory)
+        return trajectory, trajectory_encoded
 
 def get_local_pose(
     pose: np.ndarray,

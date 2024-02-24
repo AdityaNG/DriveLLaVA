@@ -41,6 +41,10 @@ python3 -m drivellava.scripts.generate_commavq_images
 python3 -m drivellava.scripts.visualize_pose
 ```
 
+```python3
+python3 -m drivellava.scripts.generate_trajectory_templates
+```
+
 ## TODO
 
 - Training script

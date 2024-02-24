@@ -14,8 +14,14 @@ from drivellava.utils import (
     plot_steering_traj,
 )
 
-from drivellava.datasets.commavq import CommaVQPoseDataset
-
+from drivellava.datasets.commavq import CommaVQPoseQuantizedDataset
+from drivellava.trajectory_encoder import (
+    TrajectoryEncoder,
+    NUM_TRAJECTORY_TEMPLATES,
+    TRAJECTORY_SIZE,
+    TRAJECTORY_TEMPLATES_NPY,
+    TRAJECTORY_TEMPLATES_KMEANS_PKL,
+)
 
 def main():
 
@@ -30,11 +36,19 @@ def main():
         )
         print(pose_path)
 
-        pose_dataset = CommaVQPoseDataset(
+        trajectory_encoder = TrajectoryEncoder(
+            num_trajectory_templates = NUM_TRAJECTORY_TEMPLATES,
+            trajectory_size = TRAJECTORY_SIZE,
+            trajectory_templates_npy = TRAJECTORY_TEMPLATES_NPY,
+            trajectory_templates_kmeans_pkl = TRAJECTORY_TEMPLATES_KMEANS_PKL,
+        )
+
+        pose_dataset = CommaVQPoseQuantizedDataset(
             pose_path,
             num_frames=NUM_FRAMES,
             window_length=21 * 2 - 1,
             polyorder=1,
+            trajectory_encoder=trajectory_encoder,
         )
 
         # Iterate over the embeddings in batches and decode the images
@@ -43,7 +57,10 @@ def main():
         ):
             img = cv2.imread(decoded_imgs_list[i])
 
-            trajectory = pose_dataset[i]
+            trajectory, trajectory_encoded = pose_dataset[i]
+            trajectory_quantized = trajectory_encoder.decode(
+                trajectory_encoded
+            )
 
             print(
                 "trajectory[0]",
@@ -67,9 +84,21 @@ def main():
             img = plot_steering_traj(
                 img,
                 trajectory,
+                color=(255, 0, 0),
             )
 
-            img_bev = plot_bev_trajectory(trajectory, img)
+            img = plot_steering_traj(
+                img,
+                trajectory_quantized,
+                color=(0, 255, 0),
+            )
+
+            img_bev = plot_bev_trajectory(
+                trajectory, img, color=(255, 0, 0)
+            )
+            img_bev = plot_bev_trajectory(
+                trajectory_quantized, img, color=(0, 255, 0)
+            )
 
             # Write speed on img
             font = cv2.FONT_HERSHEY_SIMPLEX

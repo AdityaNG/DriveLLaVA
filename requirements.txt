@@ -4,3 +4,6 @@ wandb
 opencv-python
 onnxruntime-gpu==1.15.0
 scipy
+matplotlib
+scikit-image
+scikit-learn

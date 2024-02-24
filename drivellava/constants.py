@@ -26,8 +26,8 @@ ENCODED_VIDEOS_ALL = glob(os.path.join(COMMAVQ_DIR, "*", "*.npy"))
 ENCODED_VIDEOS_ALL = [x for x in ENCODED_VIDEOS_ALL if os.path.isfile(x)]
 # ENCODED_VIDEOS_ALL = sorted(ENCODED_VIDEOS_ALL)
 
-ENCODED_POSE = glob(os.path.join(COMMAVQ_DIR, "*", "*.npy"))
-ENCODED_POSE = [x for x in ENCODED_POSE if os.path.isfile(x)]
+ENCODED_POSE_ALL = glob(os.path.join(COMMAVQ_DIR, "pose_data_*", "*.npy"))
+ENCODED_POSE_ALL = [x for x in ENCODED_POSE_ALL if os.path.isfile(x)]
 
 # List of all the encoded videos
 ENCODED_VIDEOS = glob(os.path.join(COMMAVQ_DIR, "data_*_to_*", "*.npy"))
@@ -39,8 +39,8 @@ ENCODED_POSE = [x for x in ENCODED_POSE if os.path.isfile(x)]
 VAL_ENCODED_VIDEOS = glob(os.path.join(COMMAVQ_DIR, "val", "*.npy"))
 VAL_ENCODED_VIDEOS = [x for x in VAL_ENCODED_VIDEOS if os.path.isfile(x)]
 
-ENCODED_POSE = glob(os.path.join(COMMAVQ_DIR, "pose_val", "*.npy"))
-ENCODED_POSE = [x for x in ENCODED_POSE if os.path.isfile(x)]
+VAL_ENCODED_POSE = glob(os.path.join(COMMAVQ_DIR, "pose_val", "*.npy"))
+VAL_ENCODED_POSE = [x for x in VAL_ENCODED_POSE if os.path.isfile(x)]
 
 DECODED_IMGS = {
     x: (
