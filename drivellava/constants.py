@@ -73,7 +73,7 @@ COMMAVQ_GPT2M_DIR = os.path.expanduser("~/Datasets/commavq-gpt2m")
 DECODER_ONNX_PATH = os.path.join(COMMAVQ_GPT2M_DIR, "decoder.onnx")
 
 # assert os.path.isfile(ENCODER_ONNX_PATH)
-assert os.path.isfile(DECODER_ONNX_PATH)
+assert os.path.isfile(DECODER_ONNX_PATH), DECODER_ONNX_PATH
 
 assert len(ENCODED_VIDEOS) > 0
 assert len(VAL_ENCODED_VIDEOS) > 0

@@ -18,11 +18,12 @@ def generate_frame(pose_path_num_frames_window_length_skip_frames):
     This is needed because ProcessPoolExecutor.map only supports functions
     with a single argument.
     """
-    pose_path, num_frames, window_length, skip_frames = (
+    pose_path, pose_index, num_frames, window_length, skip_frames = (
         pose_path_num_frames_window_length_skip_frames
     )
     generate_sparse_dataset(
         pose_path,
+        pose_index,
         num_frames,
         window_length,
         skip_frames,
@@ -37,8 +38,8 @@ def main():
 
     # Prepare a list of arguments for each task
     tasks = [
-        (pose_path, NUM_FRAMES, WINDOW_LENGTH, SKIP_FRAMES)
-        for pose_path in ENCODED_POSE_ALL
+        (pose_path, pose_index, NUM_FRAMES, WINDOW_LENGTH, SKIP_FRAMES)
+        for pose_index, pose_path in enumerate(ENCODED_POSE_ALL)
     ]
 
     # Initialize progress bar

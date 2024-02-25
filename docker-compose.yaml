@@ -3,18 +3,18 @@ services:
   dev:
     # Will build ./docker/Dockerfile
     # This Dockerfile is for GPU based development
-
+    ipc: host
     build:
       context: .
       dockerfile: ./docker/Dockerfile
     volumes:
       - ./:/app
-      - ~/.cache:/root/.cache
-      - ~/.torch:/root/.torch
-      - ~/.config:/root/.config
-      - ~/.bash_history:/root/.bash_history
-      - ~/.netrc:/root/.netrc
-      - ~/Datasets:/root/Datasets
+      - /home/ubuntu/.cache:/root/.cache
+      - /home/ubuntu/.torch:/root/.torch
+      - /home/ubuntu/.config:/root/.config
+      - /home/ubuntu/.bash_history:/root/.bash_history
+      - /home/ubuntu/.netrc:/root/.netrc
+      - /home/ubuntu/Datasets:/root/Datasets
     deploy:
       resources:
         reservations:

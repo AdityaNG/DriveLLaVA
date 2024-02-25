@@ -4,6 +4,7 @@ Generates image frames for the commavq dataset
 
 import json
 import os
+import onnxruntime as ort
 
 import cv2
 import numpy as np
@@ -105,9 +106,12 @@ def generate_sparse_dataset(
     NUM_FRAMES: int,
     WINDOW_LENGTH: int,
     SKIP_FRAMES: int,
+    trajectory_encoder: TrajectoryEncoder = None,
+    decoder_onnx: ort.InferenceSession = None,
 ):
     batch_size = 1
-    decoder_onnx = load_model_from_onnx_comma(DECODER_ONNX_PATH, device="cuda")
+    if decoder_onnx is None:
+        decoder_onnx = load_model_from_onnx_comma(DECODER_ONNX_PATH, device="cuda")
 
     encoded_video_path = pose_path.replace("pose_data", "data").replace(
         "pose_val", "val"
@@ -118,12 +122,13 @@ def generate_sparse_dataset(
     if os.path.isfile(json_path):
         return
 
-    trajectory_encoder = TrajectoryEncoder(
-        num_trajectory_templates=NUM_TRAJECTORY_TEMPLATES,
-        trajectory_size=TRAJECTORY_SIZE,
-        trajectory_templates_npy=TRAJECTORY_TEMPLATES_NPY,
-        trajectory_templates_kmeans_pkl=TRAJECTORY_TEMPLATES_KMEANS_PKL,
-    )
+    if trajectory_encoder is None:
+        trajectory_encoder = TrajectoryEncoder(
+            num_trajectory_templates=NUM_TRAJECTORY_TEMPLATES,
+            trajectory_size=TRAJECTORY_SIZE,
+            trajectory_templates_npy=TRAJECTORY_TEMPLATES_NPY,
+            trajectory_templates_kmeans_pkl=TRAJECTORY_TEMPLATES_KMEANS_PKL,
+        )
 
     pose_dataset = CommaVQPoseQuantizedDataset(
         pose_path,

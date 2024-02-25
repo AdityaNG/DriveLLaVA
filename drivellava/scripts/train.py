@@ -38,12 +38,12 @@ def main():
     # Assign paths to variables
     WORKING_DIR = os.path.abspath("./LLaVA/")
     DEEPSPEED_SCRIPT = "deepspeed llava/train/train_mem.py"
-    DEEPSPEED_JSON = "./scripts/zero3.json"
+    DEEPSPEED_JSON = os.path.abspath("./config/zero3.json")
     MODEL_NAME = "liuhaotian/llava-v1.5-7b"
     DATA_PATH = train_json_path  # Replace with your JSON data path
     IMAGE_FOLDER = "/"  # Replace with your image folder path
     VISION_TOWER = "openai/clip-vit-large-patch14-336"
-    OUTPUT_DIR = os.path.abspath("./checkpoints")
+    OUTPUT_DIR = os.path.expanduser("~/Datasets/checkpoints")
 
     sys.path.append(WORKING_DIR)
 

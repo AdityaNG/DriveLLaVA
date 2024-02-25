@@ -3,7 +3,9 @@ import os
 import onnxruntime as ort
 
 
-def load_model_from_onnx_comma(path: str, device="cuda"):
+def load_model_from_onnx_comma(
+    path: str, device="cuda"
+) -> ort.InferenceSession:
     # Load the model
     assert device in ["cuda", "cpu"]
     assert os.path.exists(path)
