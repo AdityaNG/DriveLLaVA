@@ -132,3 +132,4 @@ dmypy.json
 .github/templates/*
 
 checkpoints/*
+test_media/*

@@ -125,3 +125,4 @@ checkpoints_pretrained/
 
 docker/
 core
+test_media/*

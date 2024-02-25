@@ -4,10 +4,10 @@ Generates image frames for the commavq dataset
 
 import json
 import os
-import onnxruntime as ort
 
 import cv2
 import numpy as np
+import onnxruntime as ort
 from tqdm import tqdm
 
 from drivellava.constants import DECODER_ONNX_PATH, get_image_path, get_json
@@ -100,18 +100,32 @@ def visualize_pose(
         exit()
 
 
+def get_drivellava_prompt(trajectory_encoder: TrajectoryEncoder):
+    return (
+        "<image>\nYou are DriveLLaVA, a "
+        + "self-driving car. You will select the "
+        + "appropriate trrajectory token given the "
+        + "above image as context.\n"
+        + "You may select one from the "
+        + "following templates: {TEM}"
+        + ",".join(trajectory_encoder.token2trajectory.keys())
+    )
+
+
 def generate_sparse_dataset(
     pose_path: str,
     pose_index: int,
     NUM_FRAMES: int,
     WINDOW_LENGTH: int,
     SKIP_FRAMES: int,
-    trajectory_encoder: TrajectoryEncoder = None,
-    decoder_onnx: ort.InferenceSession = None,
+    trajectory_encoder: TrajectoryEncoder = None,  # type: ignore
+    decoder_onnx: ort.InferenceSession = None,  # type: ignore
 ):
     batch_size = 1
     if decoder_onnx is None:
-        decoder_onnx = load_model_from_onnx_comma(DECODER_ONNX_PATH, device="cuda")
+        decoder_onnx = load_model_from_onnx_comma(
+            DECODER_ONNX_PATH, device="cuda"
+        )
 
     encoded_video_path = pose_path.replace("pose_data", "data").replace(
         "pose_val", "val"
@@ -174,17 +188,7 @@ def generate_sparse_dataset(
                 "conversations": [
                     {
                         "from": "human",
-                        "value": (
-                            "<image>\nYou are DriveLLaVA, a "
-                            + "self-driving car. You will select the "
-                            + "appropriate trrajectory token given the "
-                            + "above image as context.\n"
-                            + "You may select one from the "
-                            + "following templates: "
-                            + ",".join(
-                                trajectory_encoder.token2trajectory.keys()
-                            )
-                        ),
+                        "value": get_drivellava_prompt(trajectory_encoder),
                     },
                     {"from": "gpt", "value": trajectory_encoded},
                 ],

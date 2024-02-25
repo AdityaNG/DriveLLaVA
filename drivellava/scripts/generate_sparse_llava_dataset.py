@@ -4,10 +4,9 @@ Generates image frames for the commavq dataset
 
 from tqdm import tqdm
 
-from drivellava.constants import ENCODED_POSE_ALL, DECODER_ONNX_PATH
-from drivellava.sparse_llava_dataset import generate_sparse_dataset
+from drivellava.constants import DECODER_ONNX_PATH, ENCODED_POSE_ALL
 from drivellava.onnx import load_model_from_onnx_comma
-from drivellava.trajectory_encoder import TRAJECTORY_SIZE
+from drivellava.sparse_llava_dataset import generate_sparse_dataset
 from drivellava.trajectory_encoder import (
     NUM_TRAJECTORY_TEMPLATES,
     TRAJECTORY_SIZE,
@@ -16,15 +15,14 @@ from drivellava.trajectory_encoder import (
     TrajectoryEncoder,
 )
 
+
 def main():
 
     NUM_FRAMES = TRAJECTORY_SIZE
     WINDOW_LENGTH = 21 * 2 - 1
     SKIP_FRAMES = 20 * 20
 
-    decoder_onnx = load_model_from_onnx_comma(
-        DECODER_ONNX_PATH, device="cuda"
-    )
+    decoder_onnx = load_model_from_onnx_comma(DECODER_ONNX_PATH, device="cuda")
 
     trajectory_encoder = TrajectoryEncoder(
         num_trajectory_templates=NUM_TRAJECTORY_TEMPLATES,
