@@ -4,9 +4,11 @@ Generates image frames for the commavq dataset
 
 import json
 import os
+import sys
 
 import cv2
 import numpy as np
+import onnxruntime as ort
 from tqdm import tqdm
 
 from drivellava.constants import DECODER_ONNX_PATH, get_image_path, get_json
@@ -24,6 +26,12 @@ from drivellava.utils import (
     plot_bev_trajectory,
     plot_steering_traj,
 )
+
+LLAVA_PATH = os.path.abspath("./LLaVA")
+if LLAVA_PATH not in sys.path:
+    sys.path.append(LLAVA_PATH)
+
+from llava.constants import DEFAULT_IMAGE_TOKEN
 
 
 def visualize_pose(
@@ -99,15 +107,32 @@ def visualize_pose(
         exit()
 
 
+def get_drivellava_prompt(trajectory_encoder: TrajectoryEncoder):
+    return (
+        f"{DEFAULT_IMAGE_TOKEN}\nYou are DriveLLaVA, a "
+        + "self-driving car. You will select the "
+        + "appropriate trrajectory token given the "
+        + "above image as context.\n"
+        + "You may select one from the "
+        + "following templates: {TEM}"
+        + ",".join(trajectory_encoder.token2trajectory.keys())
+    )
+
+
 def generate_sparse_dataset(
     pose_path: str,
     pose_index: int,
     NUM_FRAMES: int,
     WINDOW_LENGTH: int,
     SKIP_FRAMES: int,
+    trajectory_encoder: TrajectoryEncoder = None,  # type: ignore
+    decoder_onnx: ort.InferenceSession = None,  # type: ignore
 ):
     batch_size = 1
-    decoder_onnx = load_model_from_onnx_comma(DECODER_ONNX_PATH, device="cuda")
+    if decoder_onnx is None:
+        decoder_onnx = load_model_from_onnx_comma(
+            DECODER_ONNX_PATH, device="cuda"
+        )
 
     encoded_video_path = pose_path.replace("pose_data", "data").replace(
         "pose_val", "val"
@@ -118,12 +143,13 @@ def generate_sparse_dataset(
     if os.path.isfile(json_path):
         return
 
-    trajectory_encoder = TrajectoryEncoder(
-        num_trajectory_templates=NUM_TRAJECTORY_TEMPLATES,
-        trajectory_size=TRAJECTORY_SIZE,
-        trajectory_templates_npy=TRAJECTORY_TEMPLATES_NPY,
-        trajectory_templates_kmeans_pkl=TRAJECTORY_TEMPLATES_KMEANS_PKL,
-    )
+    if trajectory_encoder is None:
+        trajectory_encoder = TrajectoryEncoder(
+            num_trajectory_templates=NUM_TRAJECTORY_TEMPLATES,
+            trajectory_size=TRAJECTORY_SIZE,
+            trajectory_templates_npy=TRAJECTORY_TEMPLATES_NPY,
+            trajectory_templates_kmeans_pkl=TRAJECTORY_TEMPLATES_KMEANS_PKL,
+        )
 
     pose_dataset = CommaVQPoseQuantizedDataset(
         pose_path,
@@ -169,17 +195,7 @@ def generate_sparse_dataset(
                 "conversations": [
                     {
                         "from": "human",
-                        "value": (
-                            "<image>\nYou are DriveLLaVA, a "
-                            + "self-driving car. You will select the "
-                            + "appropriate trrajectory token given the "
-                            + "above image as context.\n"
-                            + "You may select one from the "
-                            + "following templates: "
-                            + ",".join(
-                                trajectory_encoder.token2trajectory.keys()
-                            )
-                        ),
+                        "value": get_drivellava_prompt(trajectory_encoder),
                     },
                     {"from": "gpt", "value": trajectory_encoded},
                 ],
@@ -189,3 +205,7 @@ def generate_sparse_dataset(
     # Write to json
     with open(json_path, "w") as f:
         json.dump(data, f, indent=4)
+
+
+if __name__ == "__main__":
+    print(get_drivellava_prompt(TrajectoryEncoder()))

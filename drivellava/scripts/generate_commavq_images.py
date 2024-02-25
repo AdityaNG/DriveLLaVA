@@ -19,6 +19,7 @@ from drivellava.utils import decode_image
 
 def main():
 
+    SHOW_IMAGES = False
     batch_size = 4
 
     decoder_onnx = load_model_from_onnx_comma(DECODER_ONNX_PATH, device="cuda")
@@ -36,6 +37,8 @@ def main():
         if skip:
             print(f"Skipping {encoded_video_path}")
             continue
+
+        print("encoded_video_path", encoded_video_path)
 
         # embeddings: (1200, 8, 16) -> (B, x, y)
         embeddings = np.load(encoded_video_path)
@@ -66,9 +69,12 @@ def main():
                 os.makedirs(os.path.dirname(frame_path), exist_ok=True)
                 # frame = (frame *).astype(np.uint8)
                 cv2.imwrite(frame_path, frame)
-                cv2.imshow("frame_path", cv2.resize(frame, (0, 0), fx=2, fy=2))
 
-                cv2.waitKey(1)
+                if SHOW_IMAGES:
+                    cv2.imshow(
+                        "frame_path", cv2.resize(frame, (0, 0), fx=2, fy=2)
+                    )
+                    cv2.waitKey(1)
 
 
 if __name__ == "__main__":
