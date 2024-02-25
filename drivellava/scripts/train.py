@@ -2,17 +2,14 @@
 Trains LLAVA model on the cumulative dataset.
 """
 
+import json
 import os
-import sys
 import subprocess
+import sys
 from typing import List
 
-import json
+from drivellava.constants import ENCODED_JSON, VAL_ENCODED_JSON
 
-from drivellava.constants import (
-    ENCODED_JSON,
-    VAL_ENCODED_JSON,
-)
 
 def load_json_dataset(
     json_list: List[str],
@@ -21,8 +18,9 @@ def load_json_dataset(
     for json_path in json_list:
         with open(json_path, "r") as f:
             data.extend(json.load(f))
-    
+
     return data
+
 
 def main():
     train = load_json_dataset(ENCODED_JSON)
@@ -50,9 +48,10 @@ def main():
     sys.path.append(WORKING_DIR)
 
     # Command to run the script
-    finetune_script = f'''
+    finetune_script = f"""
     {DEEPSPEED_SCRIPT} \
-        --lora_enable True --lora_r 128 --lora_alpha 256 --mm_projector_lr 2e-5 \
+        --lora_enable True --lora_r 128 --lora_alpha 256 \
+        --mm_projector_lr 2e-5 \
         --deepspeed {DEEPSPEED_JSON} \
         --model_name_or_path {MODEL_NAME} \
         --version v1 \
@@ -88,14 +87,12 @@ def main():
         --report_to wandb \
         --freeze_backbone \
         --freeze_mm_mlp_adapter
-    '''
+    """
 
     print(finetune_script)
 
     # Run the command in WORKING_DIR
     subprocess.run(finetune_script, cwd=WORKING_DIR, shell=True)
-
-
 
 
 if __name__ == "__main__":

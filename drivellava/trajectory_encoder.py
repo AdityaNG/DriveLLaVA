@@ -68,9 +68,10 @@ class TrajectoryEncoder:
         }
 
         self.TOKEN_IDS = [
-            chr(i) for i in range(
+            chr(i)
+            for i in range(
                 self.start_index,
-                self.start_index + self.num_trajectory_templates
+                self.start_index + self.num_trajectory_templates,
             )
         ]
 

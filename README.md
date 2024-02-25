@@ -31,6 +31,26 @@ $ drivellava
 
 Read the [CONTRIBUTING.md](CONTRIBUTING.md) file.
 
+## Dataset
+
+```
+cd ~/
+git clone https://github.com/AdityaNG/DriveLLaVA
+
+cd ~/Datasets/
+GIT_LFS_SKIP_SMUDGE=1 git clone https://huggingface.co/datasets/commaai/commavq ~/Datasets/commavq
+GIT_LFS_SKIP_SMUDGE=1 git clone https://huggingface.co/commaai/commavq-gpt2m ~/Datasets/commavq-gpt2m
+
+cd ~/Datasets/commavq-gpt2m
+git lfs pull --include "*.onnx"
+
+cd ~/Datasets/commavq
+git lfs pull
+
+cd ~/DriveLLaVA
+python3 -m drivellava.scripts.generate_sparse_llava_dataset
+```
+
 ## Running the scripts
 
 ```bash

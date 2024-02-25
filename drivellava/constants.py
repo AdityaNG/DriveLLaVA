@@ -52,6 +52,7 @@ VAL_ENCODED_JSON = glob(os.path.join(COMMAVQ_DIR, "val", "*.json"))
 
 ENCODED_JSON_ALL = ENCODED_JSON + VAL_ENCODED_JSON
 
+
 def get_image_path(encoded_video_path: str, index: int) -> str:
     return os.path.join(
         encoded_video_path.replace("val", "img_val").replace(".npy", ""),
