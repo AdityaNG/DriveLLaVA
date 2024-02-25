@@ -53,7 +53,8 @@ def eval_model(args):
 
     model_name = get_model_name_from_path(args.model_path)
     tokenizer, model, image_processor, context_len = load_pretrained_model(
-        args.model_path, args.model_base, model_name
+        args.model_path, args.model_base, model_name,
+        device='cuda:0'
     )
 
     qs = args.query
@@ -108,7 +109,7 @@ def eval_model(args):
     input_ids = (
         tokenizer_image_token(prompt, tokenizer, IMAGE_TOKEN_INDEX, return_tensors="pt")
         .unsqueeze(0)
-        .cuda()
+        .to(model.device)
     )
 
     with torch.inference_mode():

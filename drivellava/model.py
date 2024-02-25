@@ -2,6 +2,7 @@ import os
 import re
 import sys
 from io import BytesIO
+from typing import List
 
 import requests
 import torch
@@ -49,7 +50,10 @@ class DriveLLaVA:
         self.model_name = get_model_name_from_path(args.model_path)
         self.tokenizer, self.model, self.image_processor, self.context_len = (
             load_pretrained_model(
-                args.model_path, args.model_base, self.model_name
+                args.model_path,
+                args.model_base,
+                self.model_name,
+                load_8bit=True,
             )
         )
 
@@ -77,7 +81,7 @@ class DriveLLaVA:
 
         self.args = args
 
-    def run(self, query, image_files):
+    def run(self, query: str, image_files: List[str]):
 
         from llava.constants import (
             DEFAULT_IM_END_TOKEN,
@@ -125,7 +129,7 @@ class DriveLLaVA:
                 prompt, self.tokenizer, IMAGE_TOKEN_INDEX, return_tensors="pt"
             )
             .unsqueeze(0)
-            .cuda()
+            .to(self.model.device)
         )
 
         # Inference

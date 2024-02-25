@@ -36,7 +36,7 @@ def main():
             # "query": prompt,
             "conv_mode": None,
             # "image_file": image_file,
-            "sep": ",",
+            # "sep": ",",
             "temperature": 0,
             "top_p": None,
             "num_beams": 1,
@@ -97,7 +97,11 @@ def main():
                 decoded_imgs_list[i],
             ],
         )
+        model_trajectory_quantized = model_trajectory_quantized[0]
         print("Model Trajectory Token: ", model_trajectory_quantized)
+        model_trajectory_quantized = trajectory_encoder.decode(
+            model_trajectory_quantized
+        )
 
         print(
             "trajectory[0]",
@@ -130,9 +134,18 @@ def main():
             color=(0, 255, 0),
         )
 
+        img = plot_steering_traj(
+            img,
+            model_trajectory_quantized,
+            color=(0, 0, 255),
+        )
+
         img_bev = plot_bev_trajectory(trajectory, img, color=(255, 0, 0))
         img_bev = plot_bev_trajectory(
             trajectory_quantized, img, color=(0, 255, 0)
+        )
+        img_bev = plot_bev_trajectory(
+            model_trajectory_quantized, img, color=(0, 0, 255)
         )
 
         # Write speed on img
@@ -143,6 +156,7 @@ def main():
         lineType = 2
 
         img = cv2.resize(img, (0, 0), fx=2, fy=2)
+        img_bev = cv2.resize(img_bev, (0, 0), fx=2, fy=2)
 
         cv2.putText(
             img,

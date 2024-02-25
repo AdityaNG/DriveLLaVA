@@ -4,6 +4,7 @@ Generates image frames for the commavq dataset
 
 import json
 import os
+import sys
 
 import cv2
 import numpy as np
@@ -25,6 +26,12 @@ from drivellava.utils import (
     plot_bev_trajectory,
     plot_steering_traj,
 )
+
+LLAVA_PATH = os.path.abspath("./LLaVA")
+if LLAVA_PATH not in sys.path:
+    sys.path.append(LLAVA_PATH)
+
+from llava.constants import DEFAULT_IMAGE_TOKEN
 
 
 def visualize_pose(
@@ -102,7 +109,7 @@ def visualize_pose(
 
 def get_drivellava_prompt(trajectory_encoder: TrajectoryEncoder):
     return (
-        "<image>\nYou are DriveLLaVA, a "
+        f"{DEFAULT_IMAGE_TOKEN}\nYou are DriveLLaVA, a "
         + "self-driving car. You will select the "
         + "appropriate trrajectory token given the "
         + "above image as context.\n"
@@ -198,3 +205,7 @@ def generate_sparse_dataset(
     # Write to json
     with open(json_path, "w") as f:
         json.dump(data, f, indent=4)
+
+
+if __name__ == "__main__":
+    print(get_drivellava_prompt(TrajectoryEncoder()))
