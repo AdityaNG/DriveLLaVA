@@ -68,11 +68,11 @@ def get_json(encoded_video_path: str) -> str:
 
 COMMAVQ_GPT2M_DIR = os.path.expanduser("~/Datasets/commavq-gpt2m")
 
-ENCODER_ONNX_PATH = os.path.join(COMMAVQ_GPT2M_DIR, "encoder.onnx")
+# ENCODER_ONNX_PATH = os.path.join(COMMAVQ_GPT2M_DIR, "encoder.onnx")
 
 DECODER_ONNX_PATH = os.path.join(COMMAVQ_GPT2M_DIR, "decoder.onnx")
 
-assert os.path.isfile(ENCODER_ONNX_PATH)
+# assert os.path.isfile(ENCODER_ONNX_PATH)
 assert os.path.isfile(DECODER_ONNX_PATH)
 
 assert len(ENCODED_VIDEOS) > 0
