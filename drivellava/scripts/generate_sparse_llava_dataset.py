@@ -186,7 +186,12 @@ def main():
                                 "<image>\nYou are DriveLLaVA, a "
                                 + "self-driving car. You will select the "
                                 + "appropriate trrajectory token given the "
-                                + "above image as context"
+                                + "above image as context.\n"
+                                + "You may select one from the "
+                                + "following templates: "
+                                + ",".join(
+                                    trajectory_encoder.token2trajectory.keys()
+                                )
                             ),
                         },
                         {"from": "gpt", "value": trajectory_encoded},

@@ -44,6 +44,14 @@ VAL_ENCODED_POSE = glob(os.path.join(COMMAVQ_DIR, "pose_val", "*.npy"))
 # VAL_ENCODED_POSE = [x for x in VAL_ENCODED_POSE if os.path.isfile(x)]
 
 
+# ENCODED_JSON_ALL = glob(os.path.join(COMMAVQ_DIR, "data_*", "*.json"))
+# ENCODED_JSON_ALL += glob(os.path.join(COMMAVQ_DIR, "val", "*.json"))
+
+ENCODED_JSON = glob(os.path.join(COMMAVQ_DIR, "data_*_to_*", "*.json"))
+VAL_ENCODED_JSON = glob(os.path.join(COMMAVQ_DIR, "val", "*.json"))
+
+ENCODED_JSON_ALL = ENCODED_JSON + VAL_ENCODED_JSON
+
 def get_image_path(encoded_video_path: str, index: int) -> str:
     return os.path.join(
         encoded_video_path.replace("val", "img_val").replace(".npy", ""),

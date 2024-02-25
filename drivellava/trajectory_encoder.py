@@ -68,7 +68,10 @@ class TrajectoryEncoder:
         }
 
         self.TOKEN_IDS = [
-            chr(i) for i in range(self.start_index, 2 * self.start_index)
+            chr(i) for i in range(
+                self.start_index,
+                self.start_index + self.num_trajectory_templates
+            )
         ]
 
     def encode(self, trajectory_3d) -> str:

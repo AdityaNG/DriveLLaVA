@@ -7,3 +7,4 @@ scipy
 matplotlib
 scikit-image
 scikit-learn
+chardet
