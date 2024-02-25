@@ -48,6 +48,8 @@ cd ~/Datasets/commavq
 git lfs pull
 
 cd ~/DriveLLaVA
+./scripts/extract_zips.sh ~/Datasets/commavq/ ~/Datasets/commavq
+
 python3 -m drivellava.scripts.generate_sparse_llava_dataset
 ```
 
