@@ -29,6 +29,8 @@ git clone https://github.com/AdityaNG/DriveLLaVA
 
 cd ~/DriveLLaVA
 
+sudo docker compose build
+
 python3 -m drivellava.scripts.train
 python3 -m drivellava.scripts.eval
 ```
