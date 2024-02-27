@@ -11,7 +11,9 @@ import numpy as np
 import onnxruntime as ort
 from tqdm import tqdm
 
-from drivellava.constants import DECODER_ONNX_PATH, get_image_path, get_json
+from drivellava.constants import (
+    DECODER_ONNX_PATH, COMMAVQ_DIR, get_image_path, get_json
+)
 from drivellava.datasets.commavq import CommaVQPoseQuantizedDataset
 from drivellava.onnx import load_model_from_onnx_comma
 from drivellava.trajectory_encoder import (
@@ -114,7 +116,7 @@ def get_drivellava_prompt(trajectory_encoder: TrajectoryEncoder):
         + "appropriate trrajectory token given the "
         + "above image as context.\n"
         + "You may select one from the "
-        + "following templates: {TEM}"
+        + "following templates: "
         + ",".join(trajectory_encoder.token2trajectory.keys())
     )
 
@@ -129,10 +131,6 @@ def generate_sparse_dataset(
     decoder_onnx: ort.InferenceSession = None,  # type: ignore
 ):
     batch_size = 1
-    if decoder_onnx is None:
-        decoder_onnx = load_model_from_onnx_comma(
-            DECODER_ONNX_PATH, device="cuda"
-        )
 
     encoded_video_path = pose_path.replace("pose_data", "data").replace(
         "pose_val", "val"
@@ -140,8 +138,8 @@ def generate_sparse_dataset(
 
     json_path = get_json(encoded_video_path)
 
-    if os.path.isfile(json_path):
-        return
+    # if os.path.isfile(json_path):
+    #     return
 
     if trajectory_encoder is None:
         trajectory_encoder = TrajectoryEncoder(
@@ -174,10 +172,13 @@ def generate_sparse_dataset(
     ):
         frame_path = get_image_path(encoded_video_path, i)
 
-        trajectory, trajectory_encoded = pose_dataset[i]
-
         if not os.path.isfile(frame_path):
             embeddings_batch = embeddings[i : i + batch_size]
+            
+            if decoder_onnx is None:  # Lazy loading
+                decoder_onnx = load_model_from_onnx_comma(
+                    DECODER_ONNX_PATH, device="cuda"
+                )
             frames = decode_image(
                 decoder_onnx,
                 embeddings_batch,
@@ -187,11 +188,17 @@ def generate_sparse_dataset(
             os.makedirs(os.path.dirname(frame_path), exist_ok=True)
             cv2.imwrite(frame_path, frame)
 
+        trajectory, trajectory_encoded = pose_dataset[i]
+
+        rel_frame_path = frame_path.replace(
+            COMMAVQ_DIR + "/", ""
+        )
+
         unique_id = pose_index * 100000 + i
         data += [
             {
                 "id": str(unique_id),
-                "image": frame_path,
+                "image": rel_frame_path,
                 "conversations": [
                     {
                         "from": "human",
@@ -203,8 +210,10 @@ def generate_sparse_dataset(
         ]
 
     # Write to json
-    with open(json_path, "w") as f:
-        json.dump(data, f, indent=4)
+    with open(json_path, "w", encoding='utf-8') as f:
+        json_data = json.dumps(data, ensure_ascii=False, indent=4)
+        f.write(json_data)
+
 
 
 if __name__ == "__main__":

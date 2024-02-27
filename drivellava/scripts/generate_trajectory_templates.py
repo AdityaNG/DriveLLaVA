@@ -23,13 +23,15 @@ def main():
 
     NUM_FRAMES = TRAJECTORY_SIZE
     WINDOW_LENGTH = 21 * 2 - 1
-    SKIP_FRAMES = 20 * 10
+    SKIP_FRAMES = 20 * 30
     K = NUM_TRAJECTORY_TEMPLATES
     PLOT_TRAJ = False
 
     trajectories = []
 
-    for pose_path in tqdm(ENCODED_POSE_ALL, desc="Loading trajectories"):
+    encoded_pose_all = ENCODED_POSE_ALL[::10]
+
+    for pose_path in tqdm(encoded_pose_all, desc="Loading trajectories"):
         pose_dataset = CommaVQPoseDataset(
             pose_path,
             num_frames=NUM_FRAMES,
@@ -45,7 +47,6 @@ def main():
             desc="Video",
             disable=True,
         ):
-            img = np.zeros((128, 256, 3), dtype=np.uint8)
 
             trajectory = pose_dataset[i]
 
@@ -56,7 +57,11 @@ def main():
             trajectory_2d_flipped = trajectory_2d.copy()
             trajectory_2d_flipped[:, 0] *= -1
 
+            trajectories.append(trajectory_2d_flipped.flatten())
+
             if PLOT_TRAJ:
+                img = np.zeros((128, 256, 3), dtype=np.uint8)
+
                 dx = trajectory[1:, 2] - trajectory[:-1, 2]
                 speed = dx / (1.0 / 20.0)
                 # m/s to km/h

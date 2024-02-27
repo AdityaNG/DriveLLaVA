@@ -3,13 +3,13 @@ import pickle
 
 import numpy as np
 
-NUM_TRAJECTORY_TEMPLATES = 128
+NUM_TRAJECTORY_TEMPLATES = 256
 TRAJECTORY_SIZE = 20
 TRAJECTORY_TEMPLATES_NPY = f"./trajectory_templates/proposed_trajectory_templates_{NUM_TRAJECTORY_TEMPLATES}.npy"  # noqa
 TRAJECTORY_TEMPLATES_KMEANS_PKL = (
     f"./trajectory_templates/kmeans_{NUM_TRAJECTORY_TEMPLATES}.pkl"
 )
-
+ENCODING = 'UTF-8'
 
 class TrajectoryEncoder:
 
@@ -50,30 +50,32 @@ class TrajectoryEncoder:
         with open(trajectory_templates_kmeans_pkl, "rb") as f:
             self.kmeans = pickle.load(f)
 
-        self.start_index = 0
+        self.TOKEN_IDS = []
+
+        index = 0
+
+        while len(self.TOKEN_IDS) < self.num_trajectory_templates:
+
+            token = chr(index)
+
+            if len(repr(token.encode(ENCODING).decode(ENCODING))) == 3:
+                self.TOKEN_IDS.append(
+                    str(token)
+                )
+
+            index += 1
+            
 
         self.token2trajectory = {
-            chr(i): self.trajectory_templates[i - self.start_index]
-            for i in range(
-                self.start_index,
-                self.start_index + self.num_trajectory_templates,
-            )
+            tok: self.trajectory_templates[i]
+            for i, tok in enumerate(self.TOKEN_IDS)
         }
         self.trajectory_index_2_token = {
-            i - self.start_index: chr(i)
-            for i in range(
-                self.start_index,
-                self.start_index + self.num_trajectory_templates,
-            )
+            i: tok
+            for i, tok in enumerate(self.TOKEN_IDS)
         }
 
-        self.TOKEN_IDS = [
-            chr(i)
-            for i in range(
-                self.start_index,
-                self.start_index + self.num_trajectory_templates,
-            )
-        ]
+        
 
     def encode(self, trajectory_3d) -> str:
         N, _ = trajectory_3d.shape
@@ -114,3 +116,8 @@ class TrajectoryEncoder:
         trajectory_2d = trajectory_2d.reshape((self.trajectory_size, 3))
         trajectory_2d = trajectory_2d.astype(np.float32)
         return trajectory_2d
+
+if __name__ == "__main__":
+    trajectory_encoder = TrajectoryEncoder()
+
+    print([i.encode(ENCODING).decode(ENCODING) for i in trajectory_encoder.TOKEN_IDS])

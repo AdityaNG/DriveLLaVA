@@ -72,7 +72,9 @@ python3 -m drivellava.scripts.generate_sparse_llava_dataset
 ```
 
 ```bash
-./scripts/extract_zips.sh ~/Datasets/commavq/ ~/Datasets/commavq
+./scripts/extract_zips.sh ~/Datasets/commavq ~/Datasets/commavq
+
+./scripts/compress_zips.sh ~/Datasets/commavq ~/Datasets/commavq-compressed
 ```
 
 ```bash

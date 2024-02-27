@@ -3,7 +3,7 @@ import os
 import numpy as np
 
 from drivellava.trajectory_encoder import TrajectoryEncoder
-from drivellava.utils import remove_noise
+from drivellava.utils import remove_noise, smoothen_traj
 
 
 class CommaVQPoseDataset:
@@ -23,11 +23,18 @@ class CommaVQPoseDataset:
         pose[:, :3] *= 0.0254
         pose[:, 1] = 0.0
 
-        pose = remove_noise(
-            pose,
-            window_length=window_length,
-            polyorder=polyorder,
-        )
+        try:
+            pose = remove_noise(
+                pose,
+                window_length=window_length,
+                polyorder=polyorder,
+            )
+        except Exception as ex:
+            # print('Warning: ', ex)
+            pose = smoothen_traj(
+                pose,
+                window_size=window_length,
+            )
 
         pose[np.isnan(pose)] = 0
         pose[np.isinf(pose)] = 0

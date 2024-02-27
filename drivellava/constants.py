@@ -28,6 +28,7 @@ ENCODED_VIDEOS_ALL += glob(os.path.join(COMMAVQ_DIR, "val", "*.npy"))
 # ENCODED_VIDEOS_ALL = sorted(ENCODED_VIDEOS_ALL)
 
 ENCODED_POSE_ALL = glob(os.path.join(COMMAVQ_DIR, "pose_data_*", "*.npy"))
+ENCODED_POSE_ALL += glob(os.path.join(COMMAVQ_DIR, "pose_val", "*.npy"))
 # ENCODED_POSE_ALL = [x for x in ENCODED_POSE_ALL if os.path.isfile(x)]
 
 # List of all the encoded videos
@@ -48,7 +49,7 @@ VAL_ENCODED_POSE = glob(os.path.join(COMMAVQ_DIR, "pose_val", "*.npy"))
 # ENCODED_JSON_ALL += glob(os.path.join(COMMAVQ_DIR, "val", "*.json"))
 
 ENCODED_JSON = glob(os.path.join(COMMAVQ_DIR, "data_*_to_*", "*.json"))
-VAL_ENCODED_JSON = glob(os.path.join(COMMAVQ_DIR, "val", "*.json"))
+VAL_ENCODED_JSON = glob(os.path.join(COMMAVQ_DIR, "img_val", "*.json"))
 
 ENCODED_JSON_ALL = ENCODED_JSON + VAL_ENCODED_JSON
 
