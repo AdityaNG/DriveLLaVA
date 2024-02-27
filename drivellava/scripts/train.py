@@ -8,38 +8,57 @@ import subprocess
 import sys
 from typing import List
 
-from drivellava.constants import ENCODED_JSON, VAL_ENCODED_JSON
+from drivellava.constants import COMMAVQ_DIR
 
 
 def load_json_dataset(
     json_list: List[str],
 ):
+    # from drivellava.sparse_llava_dataset import generate_sparse_dataset
+
     data = []
     for json_path in json_list:
         with open(json_path, "r", encoding="utf-8") as f:
             loaded = json.load(f)
             for index in range(len(loaded)):
                 assert len(loaded[index]["conversations"][1]["value"]) == 1
+                # loaded[index][
+                #     "conversations"
+                # ][0]["value"] = generate_sparse_dataset()
             data.extend(loaded)
 
     return data
 
 
 def main():
-    train = load_json_dataset(ENCODED_JSON)
-    val = load_json_dataset(VAL_ENCODED_JSON)
+    # train = load_json_dataset(ENCODED_JSON)
+    # val = load_json_dataset(VAL_ENCODED_JSON)
 
-    train_json_path = os.path.abspath("checkpoints/train.json")
-    val_json_path = os.path.abspath("checkpoints/val.json")
+    # train_json_path = os.path.abspath("checkpoints/train.json")
+    # val_json_path = os.path.abspath("checkpoints/val.json")
 
-    # Save train to a temp file
-    with open(train_json_path, "w", encoding="utf-8") as f:
-        json_data = json.dumps(train, ensure_ascii=False, indent=4)
-        f.write(json_data)
+    # # Save train to a temp file
+    # with open(train_json_path, "w", encoding="utf-8") as f:
+    #     json_data = json.dumps(train, ensure_ascii=False, indent=4)
+    #     f.write(json_data)
 
-    with open(val_json_path, "w", encoding="utf-8") as f:
-        json_data = json.dumps(val, ensure_ascii=False, indent=4)
-        f.write(json_data)
+    # with open(val_json_path, "w", encoding="utf-8") as f:
+    #     json_data = json.dumps(val, ensure_ascii=False, indent=4)
+    #     f.write(json_data)
+
+    train_json_path = os.path.join(COMMAVQ_DIR, "train.json")
+    val_json_path = os.path.join(COMMAVQ_DIR, "val.json")
+
+    train = load_json_dataset(
+        [
+            train_json_path,
+        ]
+    )
+    val = load_json_dataset(
+        [
+            val_json_path,
+        ]
+    )
 
     print(f"Train: {len(train)}")
     print(f"Val: {len(val)}")
@@ -50,7 +69,9 @@ def main():
     DEEPSPEED_JSON = os.path.abspath("./config/zero3.json")
     MODEL_NAME = "liuhaotian/llava-v1.5-7b"
     DATA_PATH = train_json_path  # Replace with your JSON data path
-    IMAGE_FOLDER = "/"  # Replace with your image folder path
+    IMAGE_FOLDER = os.path.expanduser(
+        "~/Datasets/commavq"
+    )  # Replace with your image folder path
     VISION_TOWER = "openai/clip-vit-large-patch14-336"
     OUTPUT_DIR = os.path.expanduser("~/Datasets/checkpoints")
 

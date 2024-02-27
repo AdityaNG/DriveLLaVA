@@ -48,9 +48,9 @@ def main():
 
     NUM_FRAMES = 20 * 1
 
-    encoded_video_path = "/root/Datasets/commavq/data_0_to_2500/000e83c564317de4668c2cb372f89b91_6.npy"  # noqa
+    encoded_video_path = "/root/Datasets/commavq/val/fe809f0fff5562cc4d2bdc073d242123_31.npy"  # noqa
 
-    assert os.path.isfile(encoded_video_path), encoded_video_path
+    # assert os.path.isfile(encoded_video_path), encoded_video_path
 
     pose_path = encoded_video_path.replace("data_", "pose_data_").replace(
         "val", "pose_val"
