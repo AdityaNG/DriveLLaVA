@@ -30,7 +30,7 @@ class CommaVQPoseDataset:
                 polyorder=polyorder,
             )
         except Exception as ex:
-            # print('Warning: ', ex)
+            print("Warning: ", ex)
             pose = smoothen_traj(
                 pose,
                 window_size=window_length,

@@ -8,9 +8,7 @@ import cv2
 import numpy as np
 from tqdm import tqdm
 
-from drivellava.constants import (
-    ENCODED_VIDEOS_ALL, get_image_path, COMMAVQ_DIR
-)
+from drivellava.constants import ENCODED_VIDEOS_ALL, get_image_path
 from drivellava.datasets.commavq import CommaVQPoseQuantizedDataset
 from drivellava.trajectory_encoder import (
     NUM_TRAJECTORY_TEMPLATES,
@@ -27,10 +25,6 @@ def main():
     NUM_FRAMES = 20 * 1
 
     for encoded_video_path in tqdm(ENCODED_VIDEOS_ALL, desc="npy files"):
-        # encoded_video_path = os.path.join(
-        #     COMMAVQ_DIR,
-        #     "data_0_to_2500/000e83c564317de4668c2cb372f89b91_6.npy"
-        # )  # noqa
 
         if not os.path.isfile(encoded_video_path):
             continue

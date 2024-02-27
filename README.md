@@ -34,23 +34,20 @@ Read the [CONTRIBUTING.md](CONTRIBUTING.md) file.
 ## Dataset
 
 ```
-cd ~/
-git clone https://github.com/AdityaNG/DriveLLaVA
-
 cd ~/Datasets/
-GIT_LFS_SKIP_SMUDGE=1 git clone https://huggingface.co/datasets/commaai/commavq ~/Datasets/commavq
-GIT_LFS_SKIP_SMUDGE=1 git clone https://huggingface.co/commaai/commavq-gpt2m ~/Datasets/commavq-gpt2m
-
-cd ~/Datasets/commavq-gpt2m
-git lfs pull --include "*.onnx"
+GIT_LFS_SKIP_SMUDGE=1 git clone https://huggingface.co/datasets/AdityaNG/commavq-trajectory ~/Datasets/commavq
 
 cd ~/Datasets/commavq
 git lfs pull
+unzip "*.zip"
+
+cd ~/
+git clone https://github.com/AdityaNG/DriveLLaVA
 
 cd ~/DriveLLaVA
-./scripts/extract_zips.sh ~/Datasets/commavq/ ~/Datasets/commavq
 
-python3 -m drivellava.scripts.generate_sparse_llava_dataset
+python3 -m drivellava.scripts.train
+python3 -m drivellava.scripts.eval
 ```
 
 ## Running the scripts

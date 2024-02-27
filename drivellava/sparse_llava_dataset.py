@@ -12,7 +12,10 @@ import onnxruntime as ort
 from tqdm import tqdm
 
 from drivellava.constants import (
-    DECODER_ONNX_PATH, COMMAVQ_DIR, get_image_path, get_json
+    COMMAVQ_DIR,
+    DECODER_ONNX_PATH,
+    get_image_path,
+    get_json,
 )
 from drivellava.datasets.commavq import CommaVQPoseQuantizedDataset
 from drivellava.onnx import load_model_from_onnx_comma
@@ -33,7 +36,7 @@ LLAVA_PATH = os.path.abspath("./LLaVA")
 if LLAVA_PATH not in sys.path:
     sys.path.append(LLAVA_PATH)
 
-from llava.constants import DEFAULT_IMAGE_TOKEN
+from llava.constants import DEFAULT_IMAGE_TOKEN  # noqa
 
 
 def visualize_pose(
@@ -174,7 +177,7 @@ def generate_sparse_dataset(
 
         if not os.path.isfile(frame_path):
             embeddings_batch = embeddings[i : i + batch_size]
-            
+
             if decoder_onnx is None:  # Lazy loading
                 decoder_onnx = load_model_from_onnx_comma(
                     DECODER_ONNX_PATH, device="cuda"
@@ -190,9 +193,7 @@ def generate_sparse_dataset(
 
         trajectory, trajectory_encoded = pose_dataset[i]
 
-        rel_frame_path = frame_path.replace(
-            COMMAVQ_DIR + "/", ""
-        )
+        rel_frame_path = frame_path.replace(COMMAVQ_DIR + "/", "")
 
         unique_id = pose_index * 100000 + i
         data += [
@@ -210,10 +211,9 @@ def generate_sparse_dataset(
         ]
 
     # Write to json
-    with open(json_path, "w", encoding='utf-8') as f:
+    with open(json_path, "w", encoding="utf-8") as f:
         json_data = json.dumps(data, ensure_ascii=False, indent=4)
         f.write(json_data)
-
 
 
 if __name__ == "__main__":

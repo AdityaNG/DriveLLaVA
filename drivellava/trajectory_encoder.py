@@ -1,5 +1,6 @@
 import os
 import pickle
+from typing import List
 
 import numpy as np
 
@@ -9,7 +10,8 @@ TRAJECTORY_TEMPLATES_NPY = f"./trajectory_templates/proposed_trajectory_template
 TRAJECTORY_TEMPLATES_KMEANS_PKL = (
     f"./trajectory_templates/kmeans_{NUM_TRAJECTORY_TEMPLATES}.pkl"
 )
-ENCODING = 'UTF-8'
+ENCODING = "UTF-8"
+
 
 class TrajectoryEncoder:
 
@@ -50,7 +52,7 @@ class TrajectoryEncoder:
         with open(trajectory_templates_kmeans_pkl, "rb") as f:
             self.kmeans = pickle.load(f)
 
-        self.TOKEN_IDS = []
+        self.TOKEN_IDS: List[str] = []
 
         index = 0
 
@@ -59,23 +61,17 @@ class TrajectoryEncoder:
             token = chr(index)
 
             if len(repr(token.encode(ENCODING).decode(ENCODING))) == 3:
-                self.TOKEN_IDS.append(
-                    str(token)
-                )
+                self.TOKEN_IDS.append(str(token))
 
             index += 1
-            
 
         self.token2trajectory = {
             tok: self.trajectory_templates[i]
             for i, tok in enumerate(self.TOKEN_IDS)
         }
         self.trajectory_index_2_token = {
-            i: tok
-            for i, tok in enumerate(self.TOKEN_IDS)
+            i: tok for i, tok in enumerate(self.TOKEN_IDS)
         }
-
-        
 
     def encode(self, trajectory_3d) -> str:
         N, _ = trajectory_3d.shape
@@ -117,7 +113,13 @@ class TrajectoryEncoder:
         trajectory_2d = trajectory_2d.astype(np.float32)
         return trajectory_2d
 
+
 if __name__ == "__main__":
     trajectory_encoder = TrajectoryEncoder()
 
-    print([i.encode(ENCODING).decode(ENCODING) for i in trajectory_encoder.TOKEN_IDS])
+    print(
+        [
+            i.encode(ENCODING).decode(ENCODING)
+            for i in trajectory_encoder.TOKEN_IDS
+        ]
+    )

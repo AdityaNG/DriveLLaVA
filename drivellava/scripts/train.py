@@ -16,10 +16,10 @@ def load_json_dataset(
 ):
     data = []
     for json_path in json_list:
-        with open(json_path, "r", encoding='utf-8') as f:
+        with open(json_path, "r", encoding="utf-8") as f:
             loaded = json.load(f)
             for index in range(len(loaded)):
-                assert len(loaded[index]['conversations'][1]['value']) == 1
+                assert len(loaded[index]["conversations"][1]["value"]) == 1
             data.extend(loaded)
 
     return data
@@ -33,11 +33,11 @@ def main():
     val_json_path = os.path.abspath("checkpoints/val.json")
 
     # Save train to a temp file
-    with open(train_json_path, "w", encoding='utf-8') as f:
+    with open(train_json_path, "w", encoding="utf-8") as f:
         json_data = json.dumps(train, ensure_ascii=False, indent=4)
         f.write(json_data)
 
-    with open(val_json_path, "w", encoding='utf-8') as f:
+    with open(val_json_path, "w", encoding="utf-8") as f:
         json_data = json.dumps(val, ensure_ascii=False, indent=4)
         f.write(json_data)
 
