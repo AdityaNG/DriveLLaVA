@@ -1,4 +1,3 @@
-import os
 import re
 import sys
 from io import BytesIO
@@ -8,10 +7,7 @@ import requests
 import torch
 from PIL import Image
 
-
-def image_parser(args):
-    out = args.image_file.split(args.sep)
-    return out
+from drivellava.constants import LLAVA_PATH
 
 
 def load_image(image_file):
@@ -34,12 +30,10 @@ def load_images(image_files):
 class DriveLLaVA:
     def __init__(self, args):
 
-        LLAVA_PATH = os.path.abspath("./LLaVA")
-
         if LLAVA_PATH not in sys.path:
             sys.path.append(LLAVA_PATH)
 
-        from llava.mm_utils import get_model_name_from_path
+        # from llava.mm_utils import get_model_name_from_path
         from llava.model.builder import load_pretrained_model
         from llava.utils import disable_torch_init
 
@@ -47,13 +41,17 @@ class DriveLLaVA:
         # Assuming this function disables initialization in PyTorch
         disable_torch_init()
 
-        self.model_name = get_model_name_from_path(args.model_path)
+        # self.model_name = get_model_name_from_path(args.model_path)
+        self.model_name = "liuhaotian/llava-v1.5-7b"
+        # self.model_name = "llava_llama_2"
+
+        print("model_name", self.model_name)
         self.tokenizer, self.model, self.image_processor, self.context_len = (
             load_pretrained_model(
                 args.model_path,
                 args.model_base,
                 self.model_name,
-                load_8bit=True,
+                load_8bit=False,
             )
         )
 
@@ -70,6 +68,8 @@ class DriveLLaVA:
             self.conv_mode = "mpt"
         else:
             self.conv_mode = "llava_v0"
+
+        # self.conv_mode = "llava_llama_2"
 
         if args.conv_mode is not None and self.conv_mode != args.conv_mode:
             print(
@@ -120,7 +120,6 @@ class DriveLLaVA:
         prompt = conv.get_prompt()
 
         # Process images
-        # image_files = image_parser(self.args)
         images = load_images(image_files)
         image_sizes = [x.size for x in images]
         images_tensor = process_images(
@@ -150,9 +149,9 @@ class DriveLLaVA:
                 use_cache=True,
             )
 
-        outputs = self.tokenizer.batch_decode(
-            output_ids, skip_special_tokens=True
-        )[0].strip()
-        print(outputs)
+        outputs = self.tokenizer.batch_decode(output_ids)
+        print("outputs", outputs)
+
+        outputs = outputs[0]
 
         return outputs

@@ -63,6 +63,15 @@ python3 -m drivellava.scripts.generate_sparse_llava_dataset
 BNB_CUDA_VERSION=118 python3 -m drivellava.scripts.train
 ```
 
+Merge the model
+```bash
+cd LLaVA/
+python scripts/merge_lora_weights.py \
+  --model-path /path/to/lora_model \
+  --model-base /path/to/base_model \
+  --save-model-path
+```
+
 Setup the docker container for training
 ```bash
 docker compose run dev

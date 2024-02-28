@@ -21,10 +21,20 @@ from drivellava.trajectory_encoder import (
 )
 from drivellava.utils import plot_bev_trajectory, plot_steering_traj
 
+# import sys
+
 
 def main():
 
-    fine_tuned_model_path = "liuhaotian/llava-v1.5-7b"
+    # sys.path.append(LLAVA_PATH)
+
+    # from transformers.models.llava.configuration_llava import LlavaConfig
+
+    # fine_tuned_model_path = "liuhaotian/llava-v1.5-7b"
+    fine_tuned_model_path = os.path.expanduser(
+        "~/Datasets/checkpoints/checkpoint-4000/"
+        # '~/Datasets/checkpoints/checkpoint-4000/drivellava.bin'
+    )
 
     args = type(
         "Args",
@@ -34,17 +44,20 @@ def main():
             "model_base": None,
             # "model_name": get_model_name_from_path(fine_tuned_model_path),
             # "query": prompt,
-            "conv_mode": None,
+            "conv_mode": "llava_llama_2",
             # "image_file": image_file,
             # "sep": ",",
             "temperature": 0,
             "top_p": None,
             "num_beams": 1,
-            "max_new_tokens": 512,
+            "max_new_tokens": 4,
         },
     )()
 
     model = DriveLLaVA(args)
+
+    print(dir(model.tokenizer))
+    print(model.tokenizer.get_vocab())
 
     NUM_FRAMES = 20 * 1
 
@@ -79,6 +92,10 @@ def main():
         trajectory_encoder=trajectory_encoder,
     )
 
+    # Save to video
+    fourcc = cv2.VideoWriter_fourcc(*"mp4v")
+    out = None
+
     # Iterate over the embeddings in batches and decode the images
     for i in tqdm(
         range(0, len(decoded_imgs_list) - NUM_FRAMES, 1),
@@ -97,24 +114,16 @@ def main():
                 decoded_imgs_list[i],
             ],
         )
+        print(
+            "model_trajectory_quantized",
+            len(model_trajectory_quantized),
+            model_trajectory_quantized,
+        )
         model_trajectory_quantized = model_trajectory_quantized[0]
-        print("Model Trajectory Token: ", model_trajectory_quantized)
         model_trajectory_quantized = trajectory_encoder.decode(
             model_trajectory_quantized
         )
 
-        print(
-            "trajectory[0]",
-            (np.min(trajectory[:, 0]), np.max(trajectory[:, 0])),
-        )
-        print(
-            "trajectory[1]",
-            (np.min(trajectory[:, 1]), np.max(trajectory[:, 1])),
-        )
-        print(
-            "trajectory[2]",
-            (np.min(trajectory[:, 2]), np.max(trajectory[:, 2])),
-        )
         dx = trajectory[1:, 2] - trajectory[:-1, 2]
         speed = dx / (1.0 / 20.0)
         # m/s to km/h
@@ -140,13 +149,17 @@ def main():
             color=(0, 0, 255),
         )
 
-        img_bev = plot_bev_trajectory(trajectory, img, color=(255, 0, 0))
-        img_bev = plot_bev_trajectory(
+        img_bev_gt = plot_bev_trajectory(trajectory, img, color=(255, 0, 0))
+        img_bev_gtq = plot_bev_trajectory(
             trajectory_quantized, img, color=(0, 255, 0)
         )
-        img_bev = plot_bev_trajectory(
+        img_bev_pred = plot_bev_trajectory(
             model_trajectory_quantized, img, color=(0, 0, 255)
         )
+
+        # Overlay BEVs
+        img_bev = cv2.addWeighted(img_bev_gt, 0.5, img_bev_gtq, 0.5, 0)
+        img_bev = cv2.addWeighted(img_bev, 0.5, img_bev_pred, 0.5, 0)
 
         # Write speed on img
         font = cv2.FONT_HERSHEY_SIMPLEX
@@ -170,9 +183,15 @@ def main():
 
         vis = np.concatenate([img, img_bev], axis=1)
 
+        if out is None:
+            out = cv2.VideoWriter(
+                "test_media/trajectory.mp4", fourcc, 20.0, vis.shape[1::-1]
+            )
+
+        out.write(vis)
         cv2.imwrite("test_media/vis.png", vis)
 
-        exit()
+    out.release()
 
 
 if __name__ == "__main__":

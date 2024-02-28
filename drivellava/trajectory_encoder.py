@@ -1,8 +1,11 @@
+import json
 import os
 import pickle
 from typing import List
 
 import numpy as np
+
+from drivellava.constants import VOCAB_JSON
 
 NUM_TRAJECTORY_TEMPLATES = 256
 TRAJECTORY_SIZE = 20
@@ -10,7 +13,7 @@ TRAJECTORY_TEMPLATES_NPY = f"./trajectory_templates/proposed_trajectory_template
 TRAJECTORY_TEMPLATES_KMEANS_PKL = (
     f"./trajectory_templates/kmeans_{NUM_TRAJECTORY_TEMPLATES}.pkl"
 )
-ENCODING = "UTF-8"
+ENCODING = "utf-8"
 
 
 class TrajectoryEncoder:
@@ -21,11 +24,17 @@ class TrajectoryEncoder:
         trajectory_size=TRAJECTORY_SIZE,
         trajectory_templates_npy=TRAJECTORY_TEMPLATES_NPY,
         trajectory_templates_kmeans_pkl=TRAJECTORY_TEMPLATES_KMEANS_PKL,
+        vocab_json=VOCAB_JSON,
     ) -> None:
         self.num_trajectory_templates = num_trajectory_templates
         self.trajectory_templates_npy = trajectory_templates_npy
         self.trajectory_templates_kmeans_pkl = trajectory_templates_kmeans_pkl
         self.trajectory_size = trajectory_size
+
+        with open(vocab_json, "r", encoding=ENCODING) as f:
+            self.vocab_json = json.load(f)
+
+        self.vocab_json_inv = {v: k for k, v in self.vocab_json.items()}
 
         assert os.path.exists(
             trajectory_templates_npy
@@ -52,7 +61,13 @@ class TrajectoryEncoder:
         with open(trajectory_templates_kmeans_pkl, "rb") as f:
             self.kmeans = pickle.load(f)
 
-        self.TOKEN_IDS: List[str] = []
+        self.start_token_id = 31500
+        self.end_token_id = self.start_token_id + self.num_trajectory_templates
+
+        self.TOKEN_IDS: List[str] = [
+            self.vocab_json_inv[i + self.start_token_id]
+            for i in range(self.num_trajectory_templates)
+        ]
 
         index = 0
 

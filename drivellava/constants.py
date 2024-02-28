@@ -19,6 +19,8 @@ class Indexable(object):
             )
 
 
+LLAVA_PATH = os.path.abspath("./LLaVA")
+
 COMMAVQ_DIR = os.path.expanduser("~/Datasets/commavq")
 
 # List of all the videos
@@ -52,6 +54,8 @@ ENCODED_JSON = glob(os.path.join(COMMAVQ_DIR, "data_*_to_*", "*.json"))
 VAL_ENCODED_JSON = glob(os.path.join(COMMAVQ_DIR, "img_val", "*.json"))
 
 ENCODED_JSON_ALL = ENCODED_JSON + VAL_ENCODED_JSON
+
+VOCAB_JSON = os.path.abspath(os.path.join("media", "vocab.json"))
 
 
 def get_image_path(encoded_video_path: str, index: int) -> str:
