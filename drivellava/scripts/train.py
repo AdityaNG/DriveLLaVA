@@ -92,6 +92,7 @@ def main():
     DEEPSPEED_JSON = os.path.abspath("./config/zero3.json")
     MODEL_NAME = "liuhaotian/llava-v1.5-7b"
     DATA_PATH = new_train_json_path  # Replace with your JSON data path
+    # VAL_DATA_PATH = new_val_json_path
     IMAGE_FOLDER = os.path.expanduser(
         "~/Datasets/commavq"
     )  # Replace with your image folder path
@@ -107,7 +108,7 @@ def main():
         --mm_projector_lr 2e-5 \
         --deepspeed {DEEPSPEED_JSON} \
         --model_name_or_path {MODEL_NAME} \
-        --version v1 \
+        --version llava_llama_2 \
         --data_path {DATA_PATH} \
         --image_folder {IMAGE_FOLDER} \
         --vision_tower {VISION_TOWER} \
@@ -123,11 +124,11 @@ def main():
         --per_device_train_batch_size 16 \
         --per_device_eval_batch_size 4 \
         --gradient_accumulation_steps 1 \
-        --evaluation_strategy "no" \
+        --evaluation_strategy "epoch" \
         --save_strategy "steps" \
         --save_steps 1000 \
         --save_total_limit 1 \
-        --learning_rate 2e-4 \
+        --learning_rate 2e-3 \
         --weight_decay 0. \
         --warmup_ratio 0.03 \
         --lr_scheduler_type "cosine" \
