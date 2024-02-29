@@ -32,7 +32,7 @@ def main():
 
     # fine_tuned_model_path = "liuhaotian/llava-v1.5-7b"
     fine_tuned_model_path = os.path.expanduser(
-        "~/Datasets/checkpoints/checkpoint-600/"
+        "~/Datasets/checkpoints/checkpoint-100/"
     )
 
     args = type(
