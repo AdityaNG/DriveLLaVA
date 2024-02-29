@@ -117,9 +117,17 @@ def get_drivellava_prompt(
     trajectory_encoder: TrajectoryEncoder,
     default_image_token: str = DEFAULT_IMAGE_TOKEN,
 ):
-    traj_list = list(trajectory_encoder.token2trajectory.keys())
-    random.shuffle(traj_list)
-    traj_str = ",".join(list(map(str, traj_list)))
+    # traj_list = list(trajectory_encoder.token2trajectory.keys())
+    left_tokens, center_tokens, right_tokens = (
+        trajectory_encoder.left_to_right()
+    )
+    traj_str = (
+        "The trajectory tokens are sorted from left to center to right\n"
+    )
+    traj_str += "Left: " + ",".join(list(map(str, left_tokens))) + "\n"
+    traj_str += "Center: " + ",".join(list(map(str, center_tokens))) + "\n"
+    traj_str += "Right: " + ",".join(list(map(str, right_tokens))) + "\n"
+
     P1 = (
         f"{default_image_token}\nYou are DriveLLaVA, a "
         + "self-driving car. You will select the "
@@ -177,7 +185,6 @@ def generate_sparse_dataset(
     )
 
     data = []
-
 
     # Iterate over the embeddings in batches and decode the images
     for i in tqdm(

@@ -30,10 +30,10 @@ def main():
 
     # from transformers.models.llava.configuration_llava import LlavaConfig
 
-    fine_tuned_model_path = "liuhaotian/llava-v1.5-7b"
-    # fine_tuned_model_path = os.path.expanduser(
-    #     "~/Datasets/checkpoints/checkpoint-1000/"
-    # )
+    # fine_tuned_model_path = "liuhaotian/llava-v1.5-7b"
+    fine_tuned_model_path = os.path.expanduser(
+        "~/Datasets/checkpoints/checkpoint-600/"
+    )
 
     args = type(
         "Args",
@@ -53,7 +53,13 @@ def main():
         },
     )()
 
-    model = DriveLLaVA(args)
+    trajectory_encoder = TrajectoryEncoder(
+        num_trajectory_templates=NUM_TRAJECTORY_TEMPLATES,
+        trajectory_size=TRAJECTORY_SIZE,
+        trajectory_templates_npy=TRAJECTORY_TEMPLATES_NPY,
+        trajectory_templates_kmeans_pkl=TRAJECTORY_TEMPLATES_KMEANS_PKL,
+    )
+    model = DriveLLaVA(args, trajectory_encoder)
 
     print(dir(model.tokenizer))
     # print(model.tokenizer.get_vocab())
@@ -67,7 +73,6 @@ def main():
     # assert os.path.isfile(encoded_video_path), encoded_video_path
 
     pose_path = encoded_video_path.replace("data_", "pose_data_").replace(
-        # pose_path = encoded_video_path.replace("img_data_", "pose_data_").replace(
         "val",
         "pose_val",
     )
@@ -81,13 +86,6 @@ def main():
         # print('frame_path', frame_path)
         if os.path.isfile(frame_path):
             decoded_imgs_list.append(frame_path)
-
-    trajectory_encoder = TrajectoryEncoder(
-        num_trajectory_templates=NUM_TRAJECTORY_TEMPLATES,
-        trajectory_size=TRAJECTORY_SIZE,
-        trajectory_templates_npy=TRAJECTORY_TEMPLATES_NPY,
-        trajectory_templates_kmeans_pkl=TRAJECTORY_TEMPLATES_KMEANS_PKL,
-    )
 
     pose_dataset = CommaVQPoseQuantizedDataset(
         pose_path,
@@ -129,15 +127,6 @@ def main():
             [
                 decoded_imgs_list[i],
             ],
-        )
-        print(
-            "model_trajectory_quantized",
-            len(model_trajectory_quantized),
-            model_trajectory_quantized,
-        )
-        model_trajectory_quantized = model_trajectory_quantized[0]
-        model_trajectory_quantized = trajectory_encoder.decode(
-            model_trajectory_quantized
         )
 
         dx = trajectory[1:, 2] - trajectory[:-1, 2]

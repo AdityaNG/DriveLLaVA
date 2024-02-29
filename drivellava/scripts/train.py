@@ -10,6 +10,8 @@ import sys
 from typing import List
 
 from drivellava.constants import COMMAVQ_DIR
+
+# from drivellava.constants import ENCODED_JSON, VAL_ENCODED_JSON
 from drivellava.trajectory_encoder import TrajectoryEncoder
 
 
@@ -25,6 +27,8 @@ def load_json_dataset(
             loaded = json.load(f)
             for index in range(len(loaded)):
                 assert len(loaded[index]["conversations"][1]["value"]) == 1
+                # print('val', loaded[index]["conversations"][1]["value"])
+                # exit()
 
                 loaded[index]["conversations"][1]["value"] = (
                     "Selected Trajectory: "
@@ -39,8 +43,17 @@ def load_json_dataset(
 
 
 def main():
-    # train = load_json_dataset(ENCODED_JSON)
-    # val = load_json_dataset(VAL_ENCODED_JSON)
+
+    trajectory_encoder = TrajectoryEncoder()
+
+    # train = load_json_dataset(
+    #     ENCODED_JSON,
+    #     trajectory_encoder,
+    # )
+    # val = load_json_dataset(
+    #     VAL_ENCODED_JSON,
+    #     trajectory_encoder,
+    # )
 
     # train_json_path = os.path.abspath("checkpoints/train.json")
     # val_json_path = os.path.abspath("checkpoints/val.json")
@@ -56,8 +69,6 @@ def main():
 
     train_json_path = os.path.join(COMMAVQ_DIR, "train.json")
     val_json_path = os.path.join(COMMAVQ_DIR, "val.json")
-
-    trajectory_encoder = TrajectoryEncoder()
 
     train = load_json_dataset(
         [
@@ -125,13 +136,13 @@ def main():
         --group_by_modality_length True \
         --bf16 True \
         --output_dir {OUTPUT_DIR} \
-        --num_train_epochs 5 \
+        --num_train_epochs 1 \
         --per_device_train_batch_size 16 \
         --per_device_eval_batch_size 4 \
         --gradient_accumulation_steps 1 \
         --evaluation_strategy "epoch" \
         --save_strategy "steps" \
-        --save_steps 1000 \
+        --save_steps 50 \
         --save_total_limit 1 \
         --learning_rate 2e-3 \
         --weight_decay 0. \
@@ -144,8 +155,7 @@ def main():
         --dataloader_num_workers 4 \
         --lazy_preprocess True \
         --report_to wandb \
-        --freeze_backbone \
-        --freeze_mm_mlp_adapter
+        --freeze_backbone
     """
 
     print(finetune_script)

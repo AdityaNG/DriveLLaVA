@@ -114,7 +114,7 @@ class TrajectoryEncoder:
         trajectory_2d = self.token2trajectory[token]
 
         height_axis = np.zeros_like(trajectory_2d[:, 0])
-        trajectory_2d = np.stack(
+        trajectory_3d = np.stack(
             (
                 trajectory_2d[:, 0],
                 height_axis,
@@ -124,13 +124,58 @@ class TrajectoryEncoder:
         )
 
         # trajectory_templates is of shape (B, F, 100, 2)
-        trajectory_2d = trajectory_2d.reshape((self.trajectory_size, 3))
-        trajectory_2d = trajectory_2d.astype(np.float32)
-        return trajectory_2d
+        trajectory_3d = trajectory_3d.reshape((self.trajectory_size, 3))
+        trajectory_3d = trajectory_3d.astype(np.float32)
+        return trajectory_3d
+
+    def left_to_right(
+        self,
+    ):
+        """Arrange the tokens from left to right
+        -ve x is left
+        +ve x is right
+        """
+        x = self.trajectory_templates[:, :, 0]
+        # x_mean, x_std = x.mean(), x.std()
+        # y_mean, y_std = (
+        #     self.trajectory_templates[:, :, 1].mean(),
+        #     self.trajectory_templates[:, :, 1].std(),
+        # )
+
+        # x_mean is ~0
+        # Sort the trajectory_templates by the mean of the x axis
+        sorted_indices = np.argsort(x.mean(axis=1))
+
+        # Split the sorted_indices into left, center and right
+        left = sorted_indices[: self.num_trajectory_templates // 3]
+        center = sorted_indices[
+            self.num_trajectory_templates
+            // 3 : 2
+            * self.num_trajectory_templates
+            // 3
+        ]
+        right = sorted_indices[2 * self.num_trajectory_templates // 3 :]
+
+        left_tokens = [self.trajectory_index_2_token[i] for i in left]
+        center_tokens = [self.trajectory_index_2_token[i] for i in center]
+        right_tokens = [self.trajectory_index_2_token[i] for i in right]
+
+        # print("self.trajectory_templates", self.trajectory_templates.shape)
+        # print("left", left.shape)
+        # print("center", center.shape)
+        # print("right", right.shape)
+
+        # print("left_tokens", left_tokens)
+        # print("center_tokens", center_tokens)
+        # print("right_tokens", right_tokens)
+
+        return left_tokens, center_tokens, right_tokens
 
 
 if __name__ == "__main__":
     trajectory_encoder = TrajectoryEncoder()
+
+    trajectory_encoder.left_to_right()
 
     print(
         [

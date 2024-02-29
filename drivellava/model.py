@@ -8,6 +8,7 @@ import torch
 from PIL import Image
 
 from drivellava.constants import LLAVA_PATH
+from drivellava.trajectory_encoder import TrajectoryEncoder
 
 
 def load_image(image_file):
@@ -28,7 +29,9 @@ def load_images(image_files):
 
 
 class DriveLLaVA:
-    def __init__(self, args):
+    def __init__(self, args, trajectory_encoder: TrajectoryEncoder):
+
+        self.trajectory_encoder = trajectory_encoder
 
         if LLAVA_PATH not in sys.path:
             sys.path.append(LLAVA_PATH)
@@ -113,7 +116,7 @@ class DriveLLaVA:
             else:
                 qs = DEFAULT_IMAGE_TOKEN + "\n" + qs
 
-        print("qs", qs)
+        # print("qs", qs)
 
         # Prepare conversation
         conv = conv_templates[self.conv_mode].copy()
@@ -121,7 +124,7 @@ class DriveLLaVA:
         conv.append_message(conv.roles[1], None)
         prompt = conv.get_prompt()
 
-        print("prompt", prompt)
+        # print("prompt", prompt)
 
         # Process images
         images = load_images(image_files)
@@ -139,7 +142,7 @@ class DriveLLaVA:
             .to(self.model.device)
         )
 
-        print("input_ids", input_ids)
+        # print("input_ids", input_ids)
 
         # Inference
         with torch.inference_mode():
@@ -162,4 +165,18 @@ class DriveLLaVA:
 
         outputs = outputs[0]
 
-        return outputs
+        # Output is of the format: "Selected Trajectory: %T"
+        # where %T is the selected trajectory_token
+
+        # Extract the selected trajectory_token
+        trajectory_token = outputs.split(":")[1].strip()
+
+        print("trajectory_token", trajectory_token)
+
+        model_trajectory_quantized = self.trajectory_encoder.decode(
+            trajectory_token
+        )
+
+        print("model_trajectory_quantized", model_trajectory_quantized)
+
+        return model_trajectory_quantized
