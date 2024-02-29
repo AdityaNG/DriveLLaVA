@@ -178,10 +178,6 @@ def generate_sparse_dataset(
 
     data = []
 
-    assert os.path.exists(encoded_video_path)
-
-    # embeddings: (1200, 8, 16) -> (B, x, y)
-    embeddings = np.load(encoded_video_path)
 
     # Iterate over the embeddings in batches and decode the images
     for i in tqdm(
@@ -192,6 +188,11 @@ def generate_sparse_dataset(
         frame_path = get_image_path(encoded_video_path, i)
 
         if not os.path.isfile(frame_path):
+            assert os.path.exists(encoded_video_path)
+
+            # embeddings: (1200, 8, 16) -> (B, x, y)
+            embeddings = np.load(encoded_video_path)
+
             embeddings_batch = embeddings[i : i + batch_size]
 
             if decoder_onnx is None:  # Lazy loading
