@@ -25,6 +25,11 @@ def load_json_dataset(
             loaded = json.load(f)
             for index in range(len(loaded)):
                 assert len(loaded[index]["conversations"][1]["value"]) == 1
+
+                loaded[index]["conversations"][1]["value"] = (
+                    "Selected Trajectory: "
+                    + loaded[index]["conversations"][1]["value"]
+                )
                 loaded[index]["conversations"][0]["value"] = (
                     get_drivellava_prompt(trajectory_encoder)
                 )

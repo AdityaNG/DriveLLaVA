@@ -30,11 +30,10 @@ def main():
 
     # from transformers.models.llava.configuration_llava import LlavaConfig
 
-    # fine_tuned_model_path = "liuhaotian/llava-v1.5-7b"
-    fine_tuned_model_path = os.path.expanduser(
-        "~/Datasets/checkpoints/checkpoint-4000/"
-        # '~/Datasets/checkpoints/checkpoint-4000/drivellava.bin'
-    )
+    fine_tuned_model_path = "liuhaotian/llava-v1.5-7b"
+    # fine_tuned_model_path = os.path.expanduser(
+    #     "~/Datasets/checkpoints/checkpoint-1000/"
+    # )
 
     args = type(
         "Args",
@@ -50,23 +49,27 @@ def main():
             "temperature": 0,
             "top_p": None,
             "num_beams": 1,
-            "max_new_tokens": 4,
+            "max_new_tokens": 64,
         },
     )()
 
     model = DriveLLaVA(args)
 
     print(dir(model.tokenizer))
-    print(model.tokenizer.get_vocab())
+    # print(model.tokenizer.get_vocab())
 
     NUM_FRAMES = 20 * 1
 
-    encoded_video_path = "/root/Datasets/commavq/val/fe809f0fff5562cc4d2bdc073d242123_31.npy"  # noqa
+    # encoded_video_path = "/root/Datasets/commavq/val/fe809f0fff5562cc4d2bdc073d242123_31.npy"  # noqa
+    encoded_video_path = "/root/Datasets/commavq/data_0_to_2500/000e83c564317de4668c2cb372f89b91_6.npy"  # noqa
+    # encoded_video_path = "/root/Datasets/commavq/img_data_0_to_2500/000e83c564317de4668c2cb372f89b91_6.npy"  # noqa
 
     # assert os.path.isfile(encoded_video_path), encoded_video_path
 
     pose_path = encoded_video_path.replace("data_", "pose_data_").replace(
-        "val", "pose_val"
+        # pose_path = encoded_video_path.replace("img_data_", "pose_data_").replace(
+        "val",
+        "pose_val",
     )
     assert os.path.isfile(pose_path), pose_path
 
@@ -74,6 +77,8 @@ def main():
 
     for frame_index in range(1200):
         frame_path = get_image_path(encoded_video_path, frame_index)
+        frame_path = frame_path.replace("data_", "img_data_")
+        # print('frame_path', frame_path)
         if os.path.isfile(frame_path):
             decoded_imgs_list.append(frame_path)
 
@@ -108,8 +113,19 @@ def main():
         trajectory, trajectory_encoded = pose_dataset[i]
         trajectory_quantized = trajectory_encoder.decode(trajectory_encoded)
 
+        traj_tokens = model.tokenizer.tokenize(trajectory_encoded)
+        traj_tokens_encoded = model.tokenizer.encode(trajectory_encoded)
+        print(
+            "traj_tokens",
+            trajectory_encoded,
+            "->",
+            traj_tokens,
+            "->",
+            traj_tokens_encoded,
+        )
+
         model_trajectory_quantized = model.run(
-            get_drivellava_prompt(trajectory_encoder),
+            get_drivellava_prompt(trajectory_encoder, default_image_token=""),
             [
                 decoded_imgs_list[i],
             ],

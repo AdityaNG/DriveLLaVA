@@ -113,11 +113,15 @@ class DriveLLaVA:
             else:
                 qs = DEFAULT_IMAGE_TOKEN + "\n" + qs
 
+        print("qs", qs)
+
         # Prepare conversation
         conv = conv_templates[self.conv_mode].copy()
         conv.append_message(conv.roles[0], qs)
         conv.append_message(conv.roles[1], None)
         prompt = conv.get_prompt()
+
+        print("prompt", prompt)
 
         # Process images
         images = load_images(image_files)
@@ -135,6 +139,8 @@ class DriveLLaVA:
             .to(self.model.device)
         )
 
+        print("input_ids", input_ids)
+
         # Inference
         with torch.inference_mode():
             output_ids = self.model.generate(
@@ -142,14 +148,16 @@ class DriveLLaVA:
                 images=images_tensor,
                 image_sizes=image_sizes,
                 do_sample=True if self.args.temperature > 0 else False,
-                temperature=self.args.temperature,
-                top_p=self.args.top_p,
+                # temperature=self.args.temperature,
+                # top_p=self.args.top_p,
                 num_beams=self.args.num_beams,
                 max_new_tokens=self.args.max_new_tokens,
                 use_cache=True,
             )
 
-        outputs = self.tokenizer.batch_decode(output_ids)
+        outputs = self.tokenizer.batch_decode(
+            output_ids, skip_special_tokens=True
+        )
         print("outputs", outputs)
 
         outputs = outputs[0]

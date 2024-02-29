@@ -113,26 +113,29 @@ def visualize_pose(
         exit()
 
 
-def get_drivellava_prompt(trajectory_encoder: TrajectoryEncoder):
+def get_drivellava_prompt(
+    trajectory_encoder: TrajectoryEncoder,
+    default_image_token: str = DEFAULT_IMAGE_TOKEN,
+):
     traj_list = list(trajectory_encoder.token2trajectory.keys())
     random.shuffle(traj_list)
     traj_str = ",".join(list(map(str, traj_list)))
     P1 = (
-        f"{DEFAULT_IMAGE_TOKEN}\nYou are DriveLLaVA, a "
+        f"{default_image_token}\nYou are DriveLLaVA, a "
         + "self-driving car. You will select the "
         + "appropriate trrajectory token given the "
         + "above image as context.\n"
         + "You may select one from the "
         + f"following templates: {traj_str}"
     )
-    P2 = f"""{DEFAULT_IMAGE_TOKEN} As DriveLLaVA, the autonomous vehicle, your task is to analyze the given image and determine the optimal driving path. Choose the most suitable trajectory option from the list provided based on the visual information. {traj_str}"""  # noqa
-    P3 = f"""{DEFAULT_IMAGE_TOKEN} You are the AI system DriveLLaVA, responsible for navigating self-driving cars. With the image provided as your guide, select the correct trajectory from the options below to ensure a safe and efficient route. {traj_str}"""  # noqa
-    P4 = f"""{DEFAULT_IMAGE_TOKEN} Imagine yourself as DriveLLaVA, an advanced self-driving vehicle intelligence. Examine the scenario depicted in the image and decide on the best course of action by selecting an appropriate trajectory from the given templates. {traj_str}"""  # noqa
-    P5 = f"""{DEFAULT_IMAGE_TOKEN} You embody DriveLLaVA, the brain behind autonomous driving technology. Given the context shown in the image, it's your job to pick the right trajectory from the available choices to navigate safely. {traj_str}"""  # noqa
-    P6 = f"""{DEFAULT_IMAGE_TOKEN} As DriveLLaVA, a pioneering self-driving car AI, you're tasked with interpreting the visual cues in the provided image to choose the most suitable trajectory from the list of options to ensure a smooth journey. {traj_str}"""  # noqa
-    P7 = f"""{DEFAULT_IMAGE_TOKEN} You, as DriveLLaVA, are at the forefront of autonomous navigation. Assess the situation depicted in the image and select the trajectory that best aligns with safe and efficient driving principles from the options provided. {traj_str}"""  # noqa
-    P8 = f"""{DEFAULT_IMAGE_TOKEN} Functioning as DriveLLaVA, the self-driving car's decision-making system, you must look at the image and determine the best path forward by choosing from the predefined trajectory templates. {traj_str}"""  # noqa
-    P9 = f"""{DEFAULT_IMAGE_TOKEN} You are DriveLLaVA, an AI designed for autonomous vehicles. Your objective is to analyze the context presented in the image and select a trajectory that guarantees the safety and comfort of your passengers from the given templates. {traj_str}"""  # noqa
+    P2 = f"""{default_image_token} As DriveLLaVA, the autonomous vehicle, your task is to analyze the given image and determine the optimal driving path. Choose the most suitable trajectory option from the list provided based on the visual information. {traj_str}"""  # noqa
+    P3 = f"""{default_image_token} You are the AI system DriveLLaVA, responsible for navigating self-driving cars. With the image provided as your guide, select the correct trajectory from the options below to ensure a safe and efficient route. {traj_str}"""  # noqa
+    P4 = f"""{default_image_token} Imagine yourself as DriveLLaVA, an advanced self-driving vehicle intelligence. Examine the scenario depicted in the image and decide on the best course of action by selecting an appropriate trajectory from the given templates. {traj_str}"""  # noqa
+    P5 = f"""{default_image_token} You embody DriveLLaVA, the brain behind autonomous driving technology. Given the context shown in the image, it's your job to pick the right trajectory from the available choices to navigate safely. {traj_str}"""  # noqa
+    P6 = f"""{default_image_token} As DriveLLaVA, a pioneering self-driving car AI, you're tasked with interpreting the visual cues in the provided image to choose the most suitable trajectory from the list of options to ensure a smooth journey. {traj_str}"""  # noqa
+    P7 = f"""{default_image_token} You, as DriveLLaVA, are at the forefront of autonomous navigation. Assess the situation depicted in the image and select the trajectory that best aligns with safe and efficient driving principles from the options provided. {traj_str}"""  # noqa
+    P8 = f"""{default_image_token} Functioning as DriveLLaVA, the self-driving car's decision-making system, you must look at the image and determine the best path forward by choosing from the predefined trajectory templates. {traj_str}"""  # noqa
+    P9 = f"""{default_image_token} You are DriveLLaVA, an AI designed for autonomous vehicles. Your objective is to analyze the context presented in the image and select a trajectory that guarantees the safety and comfort of your passengers from the given templates. {traj_str}"""  # noqa
 
     return random.choice([P1, P2, P3, P4, P5, P6, P7, P8, P9])
 
