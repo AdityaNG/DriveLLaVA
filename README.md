@@ -96,6 +96,7 @@ python3 -m drivellava.scripts.train
 - Training script
   - Select what layers to train
   - [Done] Measure memory requirements: ~ 40 GB vRAM
+  - [Done] [Google Colab training Script](https://colab.research.google.com/drive/1rtZcfZasMIly0xERC9K0gmEXvCIt1vtW#scrollTo=uEsq4SuJZy8C&uniqifier=1)
   - Train on CommaVQ
   - Tabulate results
 - Dataset

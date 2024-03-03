@@ -788,6 +788,9 @@ def make_supervised_data_module(tokenizer: transformers.PreTrainedTokenizer,
                                     data_path=validation_data_path,
                                     data_args=data_args)
         print('Eval dataset found at {}'.format(validation_data_path))
+    else:
+        print('No validation dataset found at {}'.format(validation_data_path))
+        exit(1)
     return dict(train_dataset=train_dataset,
                 eval_dataset=eval_dataset,
                 data_collator=data_collator)
