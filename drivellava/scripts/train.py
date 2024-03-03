@@ -56,7 +56,7 @@ def load_json_dataset_balanced(
         f"Mean class: {mean_class}, Std class: {std_class}"
     )
 
-    threshold = min_class * 5
+    threshold = min_class
 
     final_data = []
     final_dist: Dict[str, int] = {}
@@ -135,7 +135,7 @@ def main():
         --model_name_or_path {MODEL_NAME} \
         --version llava_llama_2 \
         --data_path {DATA_PATH} \
-        --validation_data_path {VAL_DATA_PATH} \
+        --eval_dataset {VAL_DATA_PATH} \
         --image_folder {IMAGE_FOLDER} \
         --vision_tower {VISION_TOWER} \
         --mm_projector_type mlp2x_gelu \
@@ -150,7 +150,8 @@ def main():
         --per_device_train_batch_size 16 \
         --per_device_eval_batch_size 4 \
         --gradient_accumulation_steps 1 \
-        --evaluation_strategy "epoch" \
+        --evaluation_strategy "steps" \
+        --eval_steps 50 \
         --save_strategy "steps" \
         --save_steps 50 \
         --save_total_limit 1 \
