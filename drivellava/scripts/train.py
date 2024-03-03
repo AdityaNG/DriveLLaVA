@@ -135,7 +135,7 @@ def main():
         --model_name_or_path {MODEL_NAME} \
         --version llava_llama_2 \
         --data_path {DATA_PATH} \
-        --eval_dataset {VAL_DATA_PATH} \
+        --validation_data_path {VAL_DATA_PATH} \
         --image_folder {IMAGE_FOLDER} \
         --vision_tower {VISION_TOWER} \
         --mm_projector_type mlp2x_gelu \
