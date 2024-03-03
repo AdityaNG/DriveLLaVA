@@ -117,7 +117,7 @@ def main():
     DEEPSPEED_JSON = os.path.abspath("./config/zero3.json")
     MODEL_NAME = "liuhaotian/llava-v1.5-7b"
     DATA_PATH = new_train_json_path  # Replace with your JSON data path
-    VAL_DATA_PATH = new_val_json_path
+    # VAL_DATA_PATH = new_val_json_path
     IMAGE_FOLDER = os.path.expanduser(
         "~/Datasets/commavq"
     )  # Replace with your image folder path
@@ -135,7 +135,6 @@ def main():
         --model_name_or_path {MODEL_NAME} \
         --version llava_llama_2 \
         --data_path {DATA_PATH} \
-        --validation_data_path {VAL_DATA_PATH} \
         --image_folder {IMAGE_FOLDER} \
         --vision_tower {VISION_TOWER} \
         --mm_projector_type mlp2x_gelu \

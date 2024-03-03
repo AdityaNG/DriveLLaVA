@@ -70,8 +70,6 @@ class ModelArguments:
 class DataArguments:
     data_path: str = field(default=None,
                            metadata={"help": "Path to the training data."})
-    validation_data_path: str = field(default=None,
-                           metadata={"help": "Path to the eval data."})
     lazy_preprocess: bool = False
     is_multimodal: bool = False
     image_folder: Optional[str] = field(default=None)
@@ -784,10 +782,12 @@ def make_supervised_data_module(tokenizer: transformers.PreTrainedTokenizer,
     data_collator = DataCollatorForSupervisedDataset(tokenizer=tokenizer)
 
     eval_dataset = None
-    if data_args.validation_data_path is not None:
+    validation_data_path = data_args.data_path.replace('train', 'val')
+    if os.path.isfile(validation_data_path):
         eval_dataset = LazySupervisedDataset(tokenizer=tokenizer,
-                                    data_path=data_args.validation_data_path,
+                                    data_path=validation_data_path,
                                     data_args=data_args)
+        print('Eval dataset found at {}'.format(validation_data_path))
     return dict(train_dataset=train_dataset,
                 eval_dataset=eval_dataset,
                 data_collator=data_collator)
