@@ -35,6 +35,15 @@ python3 -m drivellava.scripts.train
 python3 -m drivellava.scripts.eval
 ```
 
+## Generating trajectory templates
+
+```bash
+# Set the NUM_TRAJECTORY_TEMPLATES in drivellava/trajectory_encoder.py
+python3 -m drivellava.scripts.generate_trajectory_templates
+python3 -m drivellava.scripts.generate_sparse_llava_dataset_parallel
+python3 -m drivellava.scripts.compile_jsons
+```
+
 ## Running the scripts
 
 ```bash

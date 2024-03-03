@@ -37,7 +37,10 @@ from drivellava.utils import (
 if LLAVA_PATH not in sys.path:
     sys.path.append(LLAVA_PATH)
 
-from llava.constants import DEFAULT_IMAGE_TOKEN  # noqa
+try:
+    from llava.constants import DEFAULT_IMAGE_TOKEN  # noqa
+except ImportError:
+    DEFAULT_IMAGE_TOKEN = "<image>"
 
 
 def visualize_pose(

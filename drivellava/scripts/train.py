@@ -10,6 +10,7 @@ import sys
 from typing import Dict, List
 
 from drivellava.constants import COMMAVQ_DIR
+from drivellava.trajectory_encoder import NUM_TRAJECTORY_TEMPLATES
 
 
 def load_json_dataset(
@@ -73,8 +74,8 @@ def load_json_dataset_balanced(
 
 def main():
 
-    train_json_path = os.path.join(COMMAVQ_DIR, "train.json")
-    val_json_path = os.path.join(COMMAVQ_DIR, "val.json")
+    train_json_path = os.path.join(COMMAVQ_DIR, f"train_{str(NUM_TRAJECTORY_TEMPLATES)}.json")
+    val_json_path = os.path.join(COMMAVQ_DIR, f"val_{str(NUM_TRAJECTORY_TEMPLATES)}.json")
 
     train = load_json_dataset_balanced(
         [
