@@ -976,6 +976,8 @@ def train(attn_implementation=None):
                     args=training_args,
                     **data_module)
 
+    trainer.eval_dataset = data_module['eval_dataset']
+
     if list(pathlib.Path(training_args.output_dir).glob("checkpoint-*")):
         trainer.train(resume_from_checkpoint=True)
     else:
