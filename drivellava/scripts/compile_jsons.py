@@ -10,8 +10,10 @@ from typing import List
 from drivellava.constants import ENCODED_JSON, VAL_ENCODED_JSON
 from drivellava.sparse_llava_dataset import get_drivellava_prompt
 from drivellava.trajectory_encoder import (
-    TrajectoryEncoder, NUM_TRAJECTORY_TEMPLATES
+    NUM_TRAJECTORY_TEMPLATES,
+    TrajectoryEncoder,
 )
+
 
 def load_json_dataset(
     json_list: List[str],
@@ -57,8 +59,12 @@ def main():
     random.shuffle(train)
     random.shuffle(val)
 
-    new_train_json_path = os.path.abspath(f"checkpoints/train_{str(NUM_TRAJECTORY_TEMPLATES)}.json")
-    new_val_json_path = os.path.abspath(f"checkpoints/val_{NUM_TRAJECTORY_TEMPLATES}.json")
+    new_train_json_path = os.path.abspath(
+        f"checkpoints/train_{str(NUM_TRAJECTORY_TEMPLATES)}.json"
+    )
+    new_val_json_path = os.path.abspath(
+        f"checkpoints/val_{NUM_TRAJECTORY_TEMPLATES}.json"
+    )
 
     # Save train to a temp file
     with open(new_train_json_path, "w", encoding="utf-8") as f:
