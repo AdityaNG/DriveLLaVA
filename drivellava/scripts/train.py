@@ -150,7 +150,7 @@ def main():
         --per_device_eval_batch_size 4 \
         --gradient_accumulation_steps 1 \
         --evaluation_strategy "steps" \
-        --eval_steps 15 \
+        --eval_steps 50 \
         --save_strategy "steps" \
         --save_steps 50 \
         --save_total_limit 1 \
