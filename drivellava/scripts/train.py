@@ -11,32 +11,14 @@ from typing import Dict, List
 
 from drivellava.constants import COMMAVQ_DIR
 
-# from drivellava.constants import ENCODED_JSON, VAL_ENCODED_JSON
-from drivellava.trajectory_encoder import TrajectoryEncoder
-
 
 def load_json_dataset(
     json_list: List[str],
-    trajectory_encoder: TrajectoryEncoder,
 ):
-    from drivellava.sparse_llava_dataset import get_drivellava_prompt
-
     data = []
     for json_path in json_list:
         with open(json_path, "r", encoding="utf-8") as f:
             loaded = json.load(f)
-            for index in range(len(loaded)):
-                assert len(loaded[index]["conversations"][1]["value"]) == 1
-                # print('val', loaded[index]["conversations"][1]["value"])
-                # exit()
-
-                loaded[index]["conversations"][1]["value"] = (
-                    "Selected Trajectory: "
-                    + loaded[index]["conversations"][1]["value"]
-                )
-                loaded[index]["conversations"][0]["value"] = (
-                    get_drivellava_prompt(trajectory_encoder)
-                )
             data.extend(loaded)
 
     return data
@@ -44,26 +26,12 @@ def load_json_dataset(
 
 def load_json_dataset_balanced(
     json_list: List[str],
-    trajectory_encoder: TrajectoryEncoder,
 ):
-    from drivellava.sparse_llava_dataset import get_drivellava_prompt
 
     data = []
     for json_path in json_list:
         with open(json_path, "r", encoding="utf-8") as f:
             loaded = json.load(f)
-            for index in range(len(loaded)):
-                assert len(loaded[index]["conversations"][1]["value"]) == 1
-                # print('val', loaded[index]["conversations"][1]["value"])
-                # exit()
-
-                loaded[index]["conversations"][1]["value"] = (
-                    "Selected Trajectory: "
-                    + loaded[index]["conversations"][1]["value"]
-                )
-                loaded[index]["conversations"][0]["value"] = (
-                    get_drivellava_prompt(trajectory_encoder)
-                )
             data.extend(loaded)
 
     # Balance by the class given by data[index]["conversations"][1]["value"]
@@ -105,29 +73,6 @@ def load_json_dataset_balanced(
 
 def main():
 
-    trajectory_encoder = TrajectoryEncoder()
-
-    # train = load_json_dataset(
-    #     ENCODED_JSON,
-    #     trajectory_encoder,
-    # )
-    # val = load_json_dataset(
-    #     VAL_ENCODED_JSON,
-    #     trajectory_encoder,
-    # )
-
-    # train_json_path = os.path.abspath("checkpoints/train.json")
-    # val_json_path = os.path.abspath("checkpoints/val.json")
-
-    # # Save train to a temp file
-    # with open(train_json_path, "w", encoding="utf-8") as f:
-    #     json_data = json.dumps(train, ensure_ascii=False, indent=4)
-    #     f.write(json_data)
-
-    # with open(val_json_path, "w", encoding="utf-8") as f:
-    #     json_data = json.dumps(val, ensure_ascii=False, indent=4)
-    #     f.write(json_data)
-
     train_json_path = os.path.join(COMMAVQ_DIR, "train.json")
     val_json_path = os.path.join(COMMAVQ_DIR, "val.json")
 
@@ -135,13 +80,11 @@ def main():
         [
             train_json_path,
         ],
-        trajectory_encoder,
     )
     val = load_json_dataset(
         [
             val_json_path,
         ],
-        trajectory_encoder,
     )
 
     print(f"Train: {len(train)}")
