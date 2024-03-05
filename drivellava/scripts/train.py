@@ -56,7 +56,7 @@ def load_json_dataset_balanced(
         f"Mean class: {mean_class}, Std class: {std_class}"
     )
 
-    threshold = mean_class
+    threshold = min_class
 
     final_data = []
     final_dist: Dict[str, int] = {}
@@ -154,7 +154,7 @@ def main():
         --save_strategy "steps" \
         --save_steps 50 \
         --save_total_limit 1 \
-        --learning_rate 2e-7 \
+        --learning_rate 2e-8 \
         --weight_decay 0. \
         --warmup_ratio 0.03 \
         --lr_scheduler_type "cosine" \
