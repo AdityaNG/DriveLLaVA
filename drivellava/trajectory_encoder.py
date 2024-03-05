@@ -7,7 +7,7 @@ import numpy as np
 
 from drivellava.constants import VOCAB_JSON
 
-NUM_TRAJECTORY_TEMPLATES = 32
+NUM_TRAJECTORY_TEMPLATES = 16
 TRAJECTORY_SIZE = 20
 TRAJECTORY_TEMPLATES_NPY = f"./trajectory_templates/proposed_trajectory_templates_{NUM_TRAJECTORY_TEMPLATES}.npy"  # noqa
 TRAJECTORY_TEMPLATES_KMEANS_PKL = (
