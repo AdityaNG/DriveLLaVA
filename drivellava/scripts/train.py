@@ -56,7 +56,8 @@ def load_json_dataset_balanced(
         f"Mean class: {mean_class}, Std class: {std_class}"
     )
 
-    threshold = min_class
+    # threshold = min_class
+    threshold = mean_class
 
     final_data = []
     final_dist: Dict[str, int] = {}
