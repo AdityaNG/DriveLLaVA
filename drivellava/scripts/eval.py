@@ -26,14 +26,23 @@ from drivellava.utils import plot_bev_trajectory, plot_steering_traj
 
 def main():
 
+    # Args
+    import argparse
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "--checkpoint", type=str, default=os.path.expanduser(
+            "~/Datasets/checkpoints/checkpoint-100/"
+        )
+    )
+
+    args = parser.parse_args()
+
     # sys.path.append(LLAVA_PATH)
 
     # from transformers.models.llava.configuration_llava import LlavaConfig
 
     # fine_tuned_model_path = "liuhaotian/llava-v1.5-7b"
-    fine_tuned_model_path = os.path.expanduser(
-        "~/Datasets/checkpoints/checkpoint-100/"
-    )
+    fine_tuned_model_path = args.checkpoint
 
     args = type(
         "Args",
