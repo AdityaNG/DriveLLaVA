@@ -24,7 +24,13 @@ def main():
 
     NUM_FRAMES = 20 * 1
 
-    for encoded_video_path in tqdm(ENCODED_VIDEOS_ALL, desc="npy files"):
+    ENCODED_VIDEOS = [
+        os.path.expanduser(
+            "~/Datasets/commavq/data_0_to_2500/000e83c564317de4668c2cb372f89b91_6.npy"  # noqa
+        )
+    ]
+
+    for encoded_video_path in tqdm(ENCODED_VIDEOS, desc="npy files"):
 
         if not os.path.isfile(encoded_video_path):
             continue
@@ -32,7 +38,7 @@ def main():
         decoded_imgs_list = []
 
         for frame_index in range(1200):
-            frame_path = get_image_path(encoded_video_path, frame_index)
+            frame_path = get_image_path(encoded_video_path, frame_index).replace("data_", "img_data_")
             decoded_imgs_list.append(frame_path)
 
         pose_path = encoded_video_path.replace("data_", "pose_data_").replace(
@@ -41,6 +47,7 @@ def main():
 
         # print(encoded_video_path, pose_path)
         # exit()
+        # encoded_video_path = "/root/Datasets/commavq/data_0_to_2500/000e83c564317de4668c2cb372f89b91_6.npy"  # noqa
 
         if not os.path.isfile(pose_path):
             continue
@@ -60,11 +67,13 @@ def main():
             trajectory_encoder=trajectory_encoder,
         )
 
+        # print(len(decoded_imgs_list), decoded_imgs_list)
+
         # Iterate over the embeddings in batches and decode the images
         for i in tqdm(
             range(0, len(decoded_imgs_list) - NUM_FRAMES, 1),
             desc="Video",
-            disable=True,
+            disable=False,
         ):
             if not os.path.isfile(decoded_imgs_list[i]):
                 continue
