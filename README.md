@@ -1,6 +1,6 @@
 # DriveLLaVA
 
-<img src="media/DriveGPTDemo-2024-04-06_08.53.55.gif">
+<img src="media/DriveGPTDemo.gif">
 
 [![CI](https://github.com/AdityaNG/DriveLLaVA/actions/workflows/main.yml/badge.svg)](https://github.com/AdityaNG/DriveLLaVA/actions/workflows/main.yml)
 
@@ -20,22 +20,21 @@ Above is a demo of the DriveLLaVA predicting (BLUE) trajectory tokens and the GT
 
 <img src="media/results.png">
 
-The [training](https://wandb.ai/adityang/huggingface/runs/apo0hyvv) proceeds smoothly for an initial learning rate of `2e-8` and a batch size of `16`. This consuemd around `38 GB` VRAM and ran for about `6h30m`. Following are the metrics.
-```json
-{
-  "_runtime": 23305.34259700775,
-  "_timestamp": 1709731971.475944,
-  "train/loss": 0.722,
-  "train/global_step": 4150,
-  "eval/steps_per_second": 1.173,
-  "eval/samples_per_second": 4.692,
-  "_step": 4232,
-  "eval/loss": 0.768440842628479,
-  "train/epoch": 0.25,
-  "eval/runtime": 63.9342,
-  "train/learning_rate": 1.762700074963534e-8
-}
-```
+| Metric | Value |
+|----------------------|-------------------------|
+| Runtime | 23,305.34 seconds |
+| Training loss | 0.722 |
+| Global step | 4150 |
+| Steps per second | 1.173 |
+| Samples per second | 4.692 |
+| Evaluation runtime | 63.93 seconds |
+| Evaluation loss | 0.768440842628479 |
+| Epochs | 0.25 |
+| Initial Learning rate | 2e-8 |
+| Final Learning rate | 1.7627e-8 |
+
+
+The [training](https://wandb.ai/adityang/huggingface/runs/apo0hyvv) proceeds smoothly for an initial learning rate of `2e-8` and a batch size of `16`. This consuemd around `38 GB` VRAM and ran for about `6h30m`. 
 
 
 # Getting Started
@@ -150,9 +149,9 @@ Read the [CONTRIBUTING.md](CONTRIBUTING.md) file.
 - [ ] Training script
   - [x] Select what layers to train
   - [x] Measure memory requirements: ~ 40 GB vRAM
-  - [x] [Google Colab training Script](https://colab.research.google.com/drive/1rtZcfZasMIly0xERC9K0gmEXvCIt1vtW#scrollTo=uEsq4SuJZy8C&uniqifier=1)
+  - [x] [Notebook training Script](DriveLLaVA.ipynb)
   - [x] Train on CommaVQ
-  - [ ] Tabulate results
+  - [x] Tabulate results
 - [x] Dataset
   - [x] Generate images from CommaVQ
   - [x] Denoise the trajectory
