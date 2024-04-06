@@ -2,7 +2,6 @@
 
 <img src="media/DriveGPTDemo-2024-04-06_08.53.55.gif">
 
-<!-- [![codecov](https://codecov.io/gh/AdityaNG/DriveLLaVA/branch/main/graph/badge.svg?token=DriveLLaVA_token_here)](https://codecov.io/gh/AdityaNG/DriveLLaVA) -->
 [![CI](https://github.com/AdityaNG/DriveLLaVA/actions/workflows/main.yml/badge.svg)](https://github.com/AdityaNG/DriveLLaVA/actions/workflows/main.yml)
 
 TLDR: Using Large Vision Models as Driving Agents for AVs.
@@ -17,8 +16,31 @@ The concept is simple:
 The idea is to take advantage of the world model that an LLM would already have to make a driving agent.
 Above is a demo of the DriveLLaVA predicting (BLUE) trajectory tokens and the GT trajectory (Green) after it was trained on a 10% subset of the dataset (300k pairs).
 
+## Results
+
+<img src="media/results.png">
+
+The [training](https://wandb.ai/adityang/huggingface/runs/apo0hyvv) proceeds smoothly for an initial learning rate of `2e-8` and a batch size of `16`. This consuemd around `38 GB` VRAM and ran for about `6h30m`. Following are the metrics.
+```json
+{
+  "_runtime": 23305.34259700775,
+  "_timestamp": 1709731971.475944,
+  "train/loss": 0.722,
+  "train/global_step": 4150,
+  "eval/steps_per_second": 1.173,
+  "eval/samples_per_second": 4.692,
+  "_step": 4232,
+  "eval/loss": 0.768440842628479,
+  "train/epoch": 0.25,
+  "eval/runtime": 63.9342,
+  "train/learning_rate": 1.762700074963534e-8
+}
+```
+
 
 # Getting Started
+
+This is a public repo and we are open to contributons! Feel free to raise a PR for a feature or bugfix. Please read our [CONTRIBUTING.md](CONTRIBUTING.md) for more details on how to contribute! Use the below steps to get started with a local environment setup for development!
 
 ## Environment Setup
 
@@ -52,7 +74,7 @@ unzip "*.zip"
 
 ## Generating Trajectory Tokens
 
-We quantize the trajectory by fitting a K-Means clustering model on the dataset, which was inspired by TrajNet. The quantized index is then maped to an Unicode character by using a lookup into the Model's Dictionary which is saved in `media/vocab.json`. This is implemented in `drivellava/trajectory_encoder.py`. Following is an example frame from the Trajectory Dataset we put together. We have selected Language Tokens that were not used frequently in an attempt to remap them to trajectory tokens. We were aware that it is possible to add new tokens to the model's dictionary, we elected to not go down that route for simplicity.
+We quantize the trajectory by fitting a K-Means clustering model on the dataset, which was inspired by TrajNet. The quantized index is then maped to an Unicode character by using a lookup into the Model's Dictionary which is saved in `media/vocab.json`. This is implemented in `drivellava/trajectory_encoder.py`. Following is an example frame from the Trajectory Dataset we put together. We have selected Language Tokens that were not used frequently in an attempt to remap them to trajectory tokens. We were aware that it is possible to add new tokens to the model's dictionary, we elected to not go down that route for simplicity. In order to ensure some diversity in the prompts, we use an LLM to generate various versions of the same prompt with different words as shown in `drivellava/sparse_llava_dataset.py` in the `get_drivellava_prompt(...)` function.
 
 ```json
 {
@@ -123,8 +145,6 @@ docker compose run dev
 
 Read the [CONTRIBUTING.md](CONTRIBUTING.md) file.
 
-## Results
-
 ## Tasks
 
 - [ ] Training script
@@ -133,16 +153,26 @@ Read the [CONTRIBUTING.md](CONTRIBUTING.md) file.
   - [x] [Google Colab training Script](https://colab.research.google.com/drive/1rtZcfZasMIly0xERC9K0gmEXvCIt1vtW#scrollTo=uEsq4SuJZy8C&uniqifier=1)
   - [x] Train on CommaVQ
   - [ ] Tabulate results
-  - [ ] There's a lot of issues with the sanity of the dataset since the trajectory was derived from accelerometer data. Find out how to filter out bad data without affecting the distribution of data
 - [x] Dataset
   - [x] Generate images from CommaVQ
   - [x] Denoise the trajectory
   - [x] Quantize the trajectory
   - [x] Visualize the trajectory on the image
   - [x] Generate JSON dataset
+- [ ] CI and Features
+  - [ ] There's a lot of issues with the sanity of the dataset since the trajectory was derived from accelerometer data. Find out how to filter out bad data without affecting the distribution of data. Write test cases to enforce
+  - [ ] Write test cases for the following scripts
+    - [ ] generate_trajectory_templates
+    - [ ] generate_sparse_llava_dataset_parallel
+    - [ ] generate_sparse_llava_dataset
+    - [ ] compile_jsons
+  - [ ] Integrate the `LLaVA/` folder inside `drivellava/`
+  - [ ] Push to pypi through github actions
+  - [ ] Push docker image to docker hub through github actions
 
 ## References
 
+- Credits to the LLaVA repo: https://github.com/haotian-liu/LLaVA
 - Fine-tuning LLaVA: https://ubiai.tools/how-to-fine-tune-llava-on-your-custom-dataset/
 - TrajNet for quantized Trajectories: https://adityang.github.io/TrajNet
 - Wayve's LINGO-1 as an Inspiration: https://wayve.ai/thinking/lingo-natural-language-autonomous-driving/'
