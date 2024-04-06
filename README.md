@@ -34,7 +34,7 @@ Above is a demo of the DriveLLaVA predicting (BLUE) trajectory tokens and the GT
 | Final Learning rate | 1.7627e-8 |
 
 
-The [training](https://wandb.ai/adityang/huggingface/runs/apo0hyvv) proceeds smoothly for an initial learning rate of `2e-8` and a batch size of `16`. This consuemd around `38 GB` VRAM and ran for about `6h30m`. 
+The [training](https://wandb.ai/adityang/huggingface/runs/apo0hyvv) proceeds smoothly for an initial learning rate of `2e-8` and a batch size of `16`. This consumed around `38 GB` VRAM and ran for about `6h30m`. 
 
 
 # Getting Started
@@ -73,7 +73,7 @@ unzip "*.zip"
 
 ## Generating Trajectory Tokens
 
-We quantize the trajectory by fitting a K-Means clustering model on the dataset, which was inspired by TrajNet. The quantized index is then maped to an Unicode character by using a lookup into the Model's Dictionary which is saved in `media/vocab.json`. This is implemented in `drivellava/trajectory_encoder.py`. Following is an example frame from the Trajectory Dataset we put together. We have selected Language Tokens that were not used frequently in an attempt to remap them to trajectory tokens. We were aware that it is possible to add new tokens to the model's dictionary, we elected to not go down that route for simplicity. In order to ensure some diversity in the prompts, we use an LLM to generate various versions of the same prompt with different words as shown in `drivellava/sparse_llava_dataset.py` in the `get_drivellava_prompt(...)` function.
+We quantize the trajectory by fitting a K-Means clustering model on the dataset, which was inspired by TrajNet. The quantized index is then mapped to a Unicode character by using a lookup into the Model's Dictionary which is saved in `media/vocab.json`. This is implemented in `drivellava/trajectory_encoder.py`. Following is an example frame from the Trajectory Dataset we put together. We have selected Language Tokens that were not used frequently in an attempt to remap them to trajectory tokens. We were aware that it is possible to add new tokens to the model's dictionary, we elected to not go down that route for simplicity. In order to ensure some diversity in the prompts, we use an LLM to generate various versions of the same prompt with different words as shown in `drivellava/sparse_llava_dataset.py` in the `get_drivellava_prompt(...)` function.
 
 ```json
 {
@@ -146,7 +146,7 @@ Read the [CONTRIBUTING.md](CONTRIBUTING.md) file.
 
 ## Tasks
 
-- [ ] Training script
+- [x] Training script
   - [x] Select what layers to train
   - [x] Measure memory requirements: ~ 40 GB vRAM
   - [x] [Notebook training Script](DriveLLaVA.ipynb)
@@ -168,6 +168,10 @@ Read the [CONTRIBUTING.md](CONTRIBUTING.md) file.
   - [ ] Integrate the `LLaVA/` folder inside `drivellava/`
   - [ ] Push to pypi through github actions
   - [ ] Push docker image to docker hub through github actions
+  - [ ] MLOps on Github Actions: training to auto trigger after PR merges
+- [ ] Model Experiments
+  - [ ] Temporal Information: Feed the model more than 1 frame of context
+  - [ ] Temporal Consistency loss: Penalize the model for producing temporally inconsistent results
 
 ## References
 
