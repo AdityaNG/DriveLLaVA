@@ -34,7 +34,7 @@ Above is a demo of the DriveLLaVA predicting (BLUE) trajectory tokens and the GT
 | Final Learning rate | 1.7627e-8 |
 
 
-The [training](https://wandb.ai/adityang/huggingface/runs/apo0hyvv) proceeds smoothly for an initial learning rate of `2e-8` and a batch size of `16`. This consumed around `38 GB` VRAM and ran for about `6h30m`. 
+The [training](https://wandb.ai/adityang/huggingface/runs/apo0hyvv) proceeds smoothly for an initial learning rate of `2e-8` and a batch size of `16`. This consumed around `38 GB` VRAM and ran for about `6h30m` on an A100 on Google Colab.
 
 
 # Getting Started
@@ -107,6 +107,17 @@ python3 -m drivellava.scripts.generate_trajectory_templates
 python3 -m drivellava.scripts.generate_sparse_llava_dataset_parallel
 python3 -m drivellava.scripts.compile_jsons
 ```
+
+## Quantized Trajectory
+
+We quantize the trajectory by fitting a K-Means clustering model on the dataset to produce the following trajectory templates. We set experiment with setting K to 64, 128 and 256.
+
+| K | Quantized Trajectories |
+|----------------------|-------------------------|
+| 64 | <img max-width=100 src="trajectory_templates/trajectory_templates_64.png"> |
+| 128 | <img max-width=100 src="trajectory_templates/trajectory_templates_128.png"> |
+| 256 | <img max-width=100 src="trajectory_templates/trajectory_templates_256.png"> |
+
 
 ## Running the scripts
 
