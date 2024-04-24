@@ -4,6 +4,7 @@ import pickle
 from typing import List
 
 import numpy as np
+from matplotlib import colormaps
 
 from drivellava.constants import VOCAB_JSON
 from drivellava.settings import settings
@@ -174,6 +175,21 @@ class TrajectoryEncoder:
         sorted_traj = [self.trajectory_templates[i] for i in sorted_indices]
 
         return sorted_traj
+
+    def get_colors_left_to_right(self):
+        trajectory_templates = self.left_to_right_traj()
+        # Select colors based on templates
+        colors = [
+            (
+                255
+                * colormaps["gist_rainbow"](
+                    [float(i + 1) / self.num_trajectory_templates]
+                )[0]
+            )
+            for i in range(self.num_trajectory_templates)
+        ]
+
+        return trajectory_templates, colors
 
     def get_traj_str(self) -> str:
         left_tokens, center_tokens, right_tokens = self.left_to_right()

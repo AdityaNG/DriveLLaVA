@@ -19,7 +19,8 @@ action:
 
 Trajectories: {traj_str}
 
-Note that translation happens first, followed by rotation.
+Make use of the trajectory's color to identify it
+
 What are your next actions? Be short and brief with your thoughts
 """
 

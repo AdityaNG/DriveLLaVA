@@ -7,7 +7,6 @@ import traceback
 
 import cv2
 import numpy as np
-from matplotlib import colormaps
 
 from drivellava.carla.client import CarlaClient
 from drivellava.gpt.gpt_vision import GPTVision
@@ -28,14 +27,10 @@ def main():  # pragma: no cover
     gpt = GPTVision()
     client = CarlaClient()
 
-    trajectory_templates = gpt.trajectory_encoder.left_to_right_traj()
+    trajectory_templates, colors = (
+        gpt.trajectory_encoder.get_colors_left_to_right()
+    )
     NUM_TEMLATES = gpt.num_trajectory_templates
-
-    # Select colors based on templates
-    COLORS = [
-        (255 * colormaps["gist_rainbow"]([float(i + 1) / NUM_TEMLATES])[0])
-        for i in range(NUM_TEMLATES)
-    ]
 
     drone_state = client.get_car_state()
     # image = drone_state.image.cv_image()
@@ -62,11 +57,12 @@ def main():  # pragma: no cover
                 )
                 template_trajectory_3d[:, 0] = template_trajectory[:, 0]
                 template_trajectory_3d[:, 2] = template_trajectory[:, 1]
-                color = COLORS[index]
+                color = colors[index]
                 plot_steering_traj(
                     image, template_trajectory_3d, color=color, track=False
                 )
 
+            cv2.imshow("prompt", image)
             # print(type(image), image.dtype)
 
             image_vis = image_raw.copy()

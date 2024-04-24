@@ -69,7 +69,10 @@ class GPTVision:
         mission: str,
     ) -> DroneControls:
         # base64_image = encode_opencv_image(image)
-        # traj_str = self.trajectory_encoder.get_traj_str()
+        trajectory_templates, colors = (
+            self.trajectory_encoder.get_colors_left_to_right()
+        )
+        color_map = {i: colors[i] for i in range(len(colors))}
         traj_str = dedent(
             f"""
             The trajectories are numbered from:
@@ -81,6 +84,9 @@ class GPTVision:
              more centered trajectory
             Select trajectory {self.num_trajectory_templates-1} to get the
              right most.
+
+            Color Mapping (B,G,R):
+            {str(color_map)}
             """
         )
         new_messages = [
