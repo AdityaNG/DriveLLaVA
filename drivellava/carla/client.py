@@ -1,3 +1,4 @@
+import cv2
 import numpy as np
 
 try:
@@ -8,9 +9,11 @@ except ImportError:
     )
 
 import carla
+from PIL import Image as PILImage
 
 from drivellava.carla.helpers import HUD, KeyboardControl, World
 from drivellava.schema.carla import DroneControls, DroneState
+from drivellava.schema.image import Image
 
 
 class CarlaClient:
@@ -21,10 +24,10 @@ class CarlaClient:
         port=2000,
         sync=False,
         autopilot=False,
-        width=1280,
-        height=720,
+        width=512,
+        height=256,
         rolename="hero",
-        filter="vehicle.*",
+        filter="vehicle.tesla.model3",
         generation="2",
         gamma=2.2,
     ):
@@ -97,16 +100,24 @@ class CarlaClient:
         """
         Get the current state of the car
         """
-        img = np.array((256, 256, 3), dtype=np.uint8)
+        # img = np.zeros((256, 256, 3), dtype=np.uint8)
+        data = pygame.image.tostring(self.display, "RGBA")
+        W, H = self.display.get_width(), self.display.get_height()
+        img_pil = PILImage.frombytes("RGBA", (W, H), data)
+        img = np.array(img_pil)
+        img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+
+        image = Image(data=img.tolist())
+
+        vel = self.world.player.get_velocity()
+        controls = self.world.player.get_control()
+
         return DroneState(
-            image=img.tolist(),
-            velocity_x=0.0,
-            velocity_y=0.0,
-            velocity_z=0.0,
-            omega_x=0.0,
-            omega_y=0.0,
-            omega_z=0.0,
-            steering_angle=0.0,
+            image=image,
+            velocity_x=vel.x,
+            velocity_y=vel.y,
+            velocity_z=vel.z,
+            steering_angle=controls.steer,
         )
 
     def set_car_controls(self, controls: DroneControls):

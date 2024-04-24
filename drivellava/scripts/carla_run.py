@@ -4,6 +4,9 @@ GPT Vision to make Control Decisions
 
 import traceback
 
+import cv2
+import numpy as np
+
 from drivellava.carla.client import CarlaClient
 
 # from drivellava.gpt.gpt_vision import GPTVision
@@ -23,7 +26,7 @@ def main():  # pragma: no cover
     # gpt = GPTVision()
     client = CarlaClient()
 
-    # drone_state = client.get_car_state()
+    drone_state = client.get_car_state()
     # image = drone_state.image.cv_image()
 
     # last_update = drone_state.timestamp
@@ -43,14 +46,23 @@ def main():  # pragma: no cover
             #     # client.set_car_controls(gpt_controls)
             #     gpt.previous_messages.timestamp = last_update
 
-            # drone_state = client.get_car_state(default=drone_state)
-            # image = drone_state.image.cv_image()
+            drone_state = client.get_car_state(default=drone_state)
+            image = np.array(
+                drone_state.image.cv_image(),
+            )
+
+            # print(type(image), image.dtype)
+
+            cv2.imshow("carla", image)
+            key = cv2.waitKey(10) & 0xFF
+            if key == ord("q"):
+                break
     except KeyboardInterrupt:
         print("Land drone on keyboard interrupt, exiting...")
     except Exception:
         traceback.print_exc()
     finally:
-        pass
+        cv2.destroyAllWindows()
 
 
 if __name__ == "__main__":

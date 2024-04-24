@@ -17,8 +17,8 @@ class Image(Packet):
 
     def cv_image(self):
         buffer = np.array(self.data, dtype=np.uint8)
-        img = decode_opencv_image_buf(buffer)
-        img = np.array(img)
+        img_decoded = decode_opencv_image_buf(buffer)
+        img = np.array(img_decoded, dtype=np.uint8)
         return img
 
     @validator("data", pre=True)
