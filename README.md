@@ -151,6 +151,16 @@ Setup the docker container for training
 docker compose run dev
 ```
 
+Launching Carla
+```bash
+CUDA_VISIBLE_DEVICES=0 ./CarlaUE4.sh -quality-level=Low -prefernvidia -ResX=10 -ResY=10
+```
+
+Running the carla client
+```bash
+python3 -m drivellava.scripts.carla_run
+```
+
 ## Development
 
 Read the [CONTRIBUTING.md](CONTRIBUTING.md) file.

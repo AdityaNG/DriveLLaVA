@@ -8,3 +8,8 @@ matplotlib
 scikit-image
 scikit-learn
 chardet
+carla==0.9.15
+pygame==2.5.2
+numpy==1.26.4
+open3d==0.18.0
+instructor==0.4.2

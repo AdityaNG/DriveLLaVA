@@ -8,7 +8,7 @@ import cv2
 import numpy as np
 from tqdm import tqdm
 
-from drivellava.constants import ENCODED_VIDEOS_ALL, get_image_path
+from drivellava.constants import get_image_path
 from drivellava.datasets.commavq import CommaVQPoseQuantizedDataset
 from drivellava.trajectory_encoder import (
     NUM_TRAJECTORY_TEMPLATES,
@@ -38,7 +38,9 @@ def main():
         decoded_imgs_list = []
 
         for frame_index in range(1200):
-            frame_path = get_image_path(encoded_video_path, frame_index).replace("data_", "img_data_")
+            frame_path = get_image_path(
+                encoded_video_path, frame_index
+            ).replace("data_", "img_data_")
             decoded_imgs_list.append(frame_path)
 
         pose_path = encoded_video_path.replace("data_", "pose_data_").replace(
@@ -80,9 +82,9 @@ def main():
             img = cv2.imread(decoded_imgs_list[i])
 
             trajectory, trajectory_encoded = pose_dataset[i]
-            trajectory_quantized = trajectory_encoder.decode(
-                trajectory_encoded
-            )
+            # trajectory_quantized = trajectory_encoder.decode(
+            #     trajectory_encoded
+            # )
 
             print(
                 "trajectory[0]",
@@ -109,16 +111,16 @@ def main():
                 color=(255, 0, 0),
             )
 
-            img = plot_steering_traj(
-                img,
-                trajectory_quantized,
-                color=(0, 255, 0),
-            )
+            # img = plot_steering_traj(
+            #     img,
+            #     trajectory_quantized,
+            #     color=(0, 255, 0),
+            # )
 
             img_bev = plot_bev_trajectory(trajectory, img, color=(255, 0, 0))
-            img_bev = plot_bev_trajectory(
-                trajectory_quantized, img, color=(0, 255, 0)
-            )
+            # img_bev = plot_bev_trajectory(
+            #     trajectory_quantized, img, color=(0, 255, 0)
+            # )
 
             # Write speed on img
             font = cv2.FONT_HERSHEY_SIMPLEX

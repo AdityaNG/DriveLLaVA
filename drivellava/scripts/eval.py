@@ -28,11 +28,12 @@ def main():
 
     # Args
     import argparse
+
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        "--checkpoint", type=str, default=os.path.expanduser(
-            "~/Datasets/checkpoints/checkpoint-100/"
-        )
+        "--checkpoint",
+        type=str,
+        default=os.path.expanduser("~/Datasets/checkpoints/checkpoint-100/"),
     )
 
     args = parser.parse_args()

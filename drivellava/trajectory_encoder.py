@@ -6,9 +6,10 @@ from typing import List
 import numpy as np
 
 from drivellava.constants import VOCAB_JSON
+from drivellava.settings import settings
 
-NUM_TRAJECTORY_TEMPLATES = 16
-TRAJECTORY_SIZE = 20
+NUM_TRAJECTORY_TEMPLATES = settings.system.NUM_TRAJECTORY_TEMPLATES
+TRAJECTORY_SIZE = settings.system.TRAJECTORY_SIZE
 TRAJECTORY_TEMPLATES_NPY = f"./trajectory_templates/proposed_trajectory_templates_{NUM_TRAJECTORY_TEMPLATES}.npy"  # noqa
 TRAJECTORY_TEMPLATES_KMEANS_PKL = (
     f"./trajectory_templates/kmeans_{NUM_TRAJECTORY_TEMPLATES}.pkl"
@@ -170,6 +171,16 @@ class TrajectoryEncoder:
         # print("right_tokens", right_tokens)
 
         return left_tokens, center_tokens, right_tokens
+
+    def get_traj_str(self) -> str:
+        left_tokens, center_tokens, right_tokens = self.left_to_right()
+        traj_str = (
+            "The trajectory tokens are sorted from left to center to right\n"
+        )
+        traj_str += "Left: " + ",".join(list(map(str, left_tokens))) + "\n"
+        traj_str += "Center: " + ",".join(list(map(str, center_tokens))) + "\n"
+        traj_str += "Right: " + ",".join(list(map(str, right_tokens))) + "\n"
+        return traj_str
 
 
 if __name__ == "__main__":
