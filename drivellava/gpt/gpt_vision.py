@@ -2,6 +2,8 @@
 GPT Vision to make Control Decisions
 """
 
+from textwrap import dedent
+
 import instructor
 import numpy as np
 from openai import OpenAI
@@ -46,12 +48,19 @@ def llm_client_factory(llm_provider: str):
 
 
 class GPTVision:
-    def __init__(self, max_history=10):
+    def __init__(self, max_history=1):
         self.client = llm_client_factory(settings.system.SYSTEM_LLM_PROVIDER)
 
         self.previous_messages = GPTState()
         self.max_history = max_history
-        self.trajectory_encoder = TrajectoryEncoder()
+        self.num_trajectory_templates = 9
+        TRAJECTORY_TEMPLATES_NPY = f"./trajectory_templates/proposed_trajectory_templates_simple_{self.num_trajectory_templates}.npy"  # noqa
+        TRAJECTORY_TEMPLATES_KMEANS_PKL = f"./trajectory_templates/kmeans_simple_{self.num_trajectory_templates}.pkl"  # noqa
+        self.trajectory_encoder = TrajectoryEncoder(
+            num_trajectory_templates=self.num_trajectory_templates,
+            trajectory_templates_npy=TRAJECTORY_TEMPLATES_NPY,
+            trajectory_templates_kmeans_pkl=TRAJECTORY_TEMPLATES_KMEANS_PKL,
+        )
 
     def step(
         self,
@@ -60,7 +69,20 @@ class GPTVision:
         mission: str,
     ) -> DroneControls:
         # base64_image = encode_opencv_image(image)
-        traj_str = self.trajectory_encoder.get_traj_str()
+        # traj_str = self.trajectory_encoder.get_traj_str()
+        traj_str = dedent(
+            f"""
+            The trajectories are numbered from:
+            [0,{self.num_trajectory_templates-1}]
+
+            They are labelled from left to right.
+            Select trajectory 0 to get the left most.
+            Select trajectory {(self.num_trajectory_templates-1)//2} to get a
+             more centered trajectory
+            Select trajectory {self.num_trajectory_templates-1} to get the
+             right most.
+            """
+        )
         new_messages = [
             # User
             GPTMessage(

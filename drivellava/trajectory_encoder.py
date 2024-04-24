@@ -137,11 +137,6 @@ class TrajectoryEncoder:
         +ve x is right
         """
         x = self.trajectory_templates[:, :, 0]
-        # x_mean, x_std = x.mean(), x.std()
-        # y_mean, y_std = (
-        #     self.trajectory_templates[:, :, 1].mean(),
-        #     self.trajectory_templates[:, :, 1].std(),
-        # )
 
         # x_mean is ~0
         # Sort the trajectory_templates by the mean of the x axis
@@ -161,16 +156,24 @@ class TrajectoryEncoder:
         center_tokens = [self.trajectory_index_2_token[i] for i in center]
         right_tokens = [self.trajectory_index_2_token[i] for i in right]
 
-        # print("self.trajectory_templates", self.trajectory_templates.shape)
-        # print("left", left.shape)
-        # print("center", center.shape)
-        # print("right", right.shape)
-
-        # print("left_tokens", left_tokens)
-        # print("center_tokens", center_tokens)
-        # print("right_tokens", right_tokens)
-
         return left_tokens, center_tokens, right_tokens
+
+    def left_to_right_traj(
+        self,
+    ):
+        """Arrange the tokens from left to right
+        -ve x is left
+        +ve x is right
+        """
+        x = self.trajectory_templates[:, :, 0]
+
+        # x_mean is ~0
+        # Sort the trajectory_templates by the mean of the x axis
+        sorted_indices = np.argsort(x.mean(axis=1))
+
+        sorted_traj = [self.trajectory_templates[i] for i in sorted_indices]
+
+        return sorted_traj
 
     def get_traj_str(self) -> str:
         left_tokens, center_tokens, right_tokens = self.left_to_right()

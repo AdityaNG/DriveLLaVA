@@ -14,6 +14,7 @@ from PIL import Image as PILImage
 from drivellava.carla.helpers import HUD, KeyboardControl, World
 from drivellava.schema.carla import DroneControls, DroneState
 from drivellava.schema.image import Image
+from drivellava.trajectory_encoder import TrajectoryEncoder
 
 
 class CarlaClient:
@@ -24,8 +25,8 @@ class CarlaClient:
         port=2000,
         sync=False,
         autopilot=False,
-        width=512,
-        height=256,
+        width=256,
+        height=128,
         rolename="hero",
         filter="vehicle.tesla.model3",
         generation="2",
@@ -120,8 +121,32 @@ class CarlaClient:
             steering_angle=controls.steer,
         )
 
-    def set_car_controls(self, controls: DroneControls):
+    def set_car_controls(
+        self, controls: DroneControls, trajectory_encoder: TrajectoryEncoder
+    ):
         """
         Set the car controls
         """
-        pass
+        if controls.speed_index == 0:
+            self.world.player.enable_constant_velocity(
+                carla.Vector3D(0, 0, 0)  # 30 Km/h
+            )
+            self.world.constant_velocity_enabled = True
+        elif controls.speed_index == 1:
+            self.world.player.enable_constant_velocity(
+                carla.Vector3D(1, 0, 0)  # 5 Km/h
+            )
+            self.world.constant_velocity_enabled = True
+
+            steering_angle = (
+                2.0
+                * (
+                    float(controls.trajectory_index)
+                    / trajectory_encoder.num_trajectory_templates
+                )
+                - 1.0
+            )
+
+            assert -1 <= steering_angle <= 1
+
+            self.controller.set_steering_angle(steering_angle)

@@ -1524,6 +1524,12 @@ class KeyboardControl(object):
         else:
             self._ackermann_control.steer = round(self._steer_cache, 1)
 
+    def set_steering_angle(self, steering_angle):
+        if not self._ackermann_enabled:
+            self._control.steer = round(steering_angle, 1)
+        else:
+            self._ackermann_control.steer = round(steering_angle, 1)
+
     def _parse_walker_keys(self, keys, milliseconds, world):
         self._control.speed = 0.0
         if keys[K_DOWN] or keys[K_s]:
@@ -1749,7 +1755,9 @@ class HUD(object):
                     )
                     display.blit(surface, (8, v_offset))
                 v_offset += 18
-        self._notifications.render(display)
+
+        # self._notifications.render(display)
+
         self.help.render(display)
 
 

@@ -121,9 +121,14 @@ def plot_steering_traj(
     DistCoef=None,
     # offsets=[0.0, 1.5, 1.0],
     offsets=[0.0, -0.75, 0.0],
+    # offsets=[0.0, -1.5, 0.0],
     method="add_weighted",
+    track=True,
 ):
     assert method in ("overlay", "mask", "add_weighted")
+
+    h, w = frame_center.shape[:2]
+
     if intrinsic_matrix is None:
         # intrinsic_matrix = np.array([
         #     [525.5030,         0,    333.4724],
@@ -132,8 +137,8 @@ def plot_steering_traj(
         # ])
         intrinsic_matrix = np.array(
             [
-                [525.5030, 0, 256.0 / 2],
-                [0, 531.1660, 128.0 / 2],
+                [525.5030, 0, w / 2],
+                [0, 531.1660, h / 2],
                 [0, 0, 1.0],
             ]
         )
@@ -147,7 +152,6 @@ def plot_steering_traj(
                 -0.6398,  # Radial Distortion
             ]
         )
-    h, w = frame_center.shape[:2]
     newcameramtx, roi = cv2.getOptimalNewCameraMatrix(
         intrinsic_matrix, DistCoef, (w, h), 1, (w, h)
     )
@@ -184,13 +188,14 @@ def plot_steering_traj(
                 px_p, py_p = prev_point
                 dist = ((px_p - px) ** 2 + (py_p - py) ** 2) ** 0.5
                 if dist < 20:
-                    rect_coords_3D = get_rect_coords_3D(p4d, prev_point_3D)
-                    rect_coords = convert_3D_points_to_2D(
-                        rect_coords_3D, homo_cam_mat
-                    )
-                    rect_frame = cv2.fillPoly(
-                        rect_frame, pts=[rect_coords], color=color
-                    )
+                    if track:
+                        rect_coords_3D = get_rect_coords_3D(p4d, prev_point_3D)
+                        rect_coords = convert_3D_points_to_2D(
+                            rect_coords_3D, homo_cam_mat
+                        )
+                        rect_frame = cv2.fillPoly(
+                            rect_frame, pts=[rect_coords], color=color
+                        )
 
                     frame_center = cv2.line(
                         frame_center, (px_p, py_p), (px, py), color, 2

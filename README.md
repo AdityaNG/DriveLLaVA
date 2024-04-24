@@ -156,6 +156,11 @@ Launching Carla
 CUDA_VISIBLE_DEVICES=0 ./CarlaUE4.sh -quality-level=Low -prefernvidia -ResX=10 -ResY=10
 ```
 
+Generate the simple trajectory templates
+```bash
+python3 -m drivellava.scripts.generate_trajectory_templates_simple
+```
+
 Running the carla client
 ```bash
 python3 -m drivellava.scripts.carla_run
@@ -179,6 +184,12 @@ Read the [CONTRIBUTING.md](CONTRIBUTING.md) file.
   - [x] Quantize the trajectory
   - [x] Visualize the trajectory on the image
   - [x] Generate JSON dataset
+- [ ] Carla
+  - [x] Build a Carla Client
+  - [x] Connect Vision Model to Carla
+  - [ ] Pause sim when thinking
+  - [ ] Feed in multi-cam input
+  - [ ] Feed in top down map view
 - [ ] CI and Features
   - [ ] There's a lot of issues with the sanity of the dataset since the trajectory was derived from accelerometer data. Find out how to filter out bad data without affecting the distribution of data. Write test cases to enforce
   - [ ] Write test cases for the following scripts
