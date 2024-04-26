@@ -3,8 +3,10 @@ GPT Vision to make Control Decisions
 """
 
 GPT_SYSTEM = """
-You are an autonomous vehicle. You are given the vehicle's environment state \
-and you must control the vehicle to complete the mission.
+You are DriveLLaVA, an autonomous vehicle. You analyze the situation and \
+make descisions on the control signals to drive the vehicle. You are given \
+the vehicle's environment state and you must control the vehicle to \
+complete the mission.
 """
 
 GPT_PROMPT_SETUP = """
@@ -21,12 +23,11 @@ Trajectories: {traj_str}
 
 Make use of the trajectory's color to identify it
 
-What are your next actions? Be short and brief with your thoughts
+What are your next actions? Let us think step by step
 """
 
 GPT_PROMPT_UPDATE = """MISSION: {mission}
-Updated visual is provided
-What are your next actions? Be short and brief with your thoughts
+Updated visual is provided. What are your next actions?
 """
 
 GPT_PROMPT_CONTROLS = """

@@ -75,25 +75,31 @@ def print_text_image(
     width=50,
     font_size=0.5,
     font_thickness=2,
+    text_color=(255, 255, 255),
+    text_color_bg=(0, 0, 0),
 ):
     font = cv2.FONT_HERSHEY_SIMPLEX
     wrapped_text = textwrap.wrap(text, width=width)
 
     for i, line in enumerate(wrapped_text):
         textsize = cv2.getTextSize(line, font, font_size, font_thickness)[0]
+        text_w, text_h = textsize
 
         gap = textsize[1] + 10
 
         y = (i + 1) * gap
         x = 10
 
+        cv2.rectangle(
+            img, (x, y - text_h), (x + text_w, y + text_h), text_color_bg, -1
+        )
         cv2.putText(
             img,
             line,
             (x, y),
             font,
             font_size,
-            (255, 255, 255),
+            text_color,
             font_thickness,
             lineType=cv2.LINE_AA,
         )
@@ -157,8 +163,8 @@ def main():  # pragma: no cover
                     image, template_trajectory_3d, color=color, track=False
                 )
 
-            print_text_image(image, "Prompt")
             visual[0:128, 0:256] = image
+            print_text_image(visual[0:128, 0:256], "Prompt")
 
             image_vis = image_raw.copy()
 
@@ -193,8 +199,8 @@ def main():  # pragma: no cover
                     color=(255, 0, 0),
                     track=True,
                 )
-                print_text_image(image_vis, "DriveLLaVA Controls")
                 visual[0:128, 256:512] = image_vis
+                print_text_image(visual[0:128, 256:512], "DriveLLaVA Controls")
 
                 text_visual = np.zeros((512 - 128, 512, 3), dtype=np.uint8)
                 print_text_image(

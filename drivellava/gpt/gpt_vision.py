@@ -48,7 +48,7 @@ def llm_client_factory(llm_provider: str):
 
 
 class GPTVision:
-    def __init__(self, max_history=1):
+    def __init__(self, max_history=0):
         self.client = llm_client_factory(settings.system.SYSTEM_LLM_PROVIDER)
 
         self.previous_messages = GPTState()
@@ -73,6 +73,14 @@ class GPTVision:
         if not settings.system.GPT_ENABLED:
             gpt_controls = DroneControls(trajectory_index=0, speed_index=0)
             return gpt_controls
+
+        # If number of messages is greater than max_history,
+        # remove the oldest message. Do not remove the system message
+        # The -2 is to account for the [system message, setup message]
+        if len(self.previous_messages) - 2 > self.max_history:
+            EXTRA_SIZE = len(self.previous_messages)
+            for _ in range(2, EXTRA_SIZE):
+                self.previous_messages.pop(-1)
 
         trajectory_templates, colors = (
             self.trajectory_encoder.get_colors_left_to_right()
@@ -172,13 +180,7 @@ class GPTVision:
             ],
         )
 
-        # If number of messages is greater than max_history,
-        # remove the oldest message. Do not remove the system message
-        # The -2 is to account for the [system message, setup message]
-        if len(self.previous_messages) - 2 > self.max_history:
-            self.previous_messages.pop(1)
-
-        print(desc)
+        # print(desc)
 
         gpt_controls = self.client.chat.completions.create(
             model=CONTROLS_MODEL,
@@ -208,6 +210,10 @@ class GPTVision:
         )
 
         gpt_controls.trajectory_index += offset
+
+        print("=" * 10)
+        print(self.previous_messages.to_str(0, ["system", "user"]))
+        print("=" * 10)
 
         print("gpt:", gpt_controls)
 

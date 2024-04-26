@@ -122,12 +122,12 @@ class GPTState(Packet):
     def to_prompt(self):
         return [m.to_dict() for m in self.messages]
 
-    def to_str(self) -> str:
+    def to_str(self, start_index: int = 1, roles: list = ["system"]) -> str:
         """
         Returns a human readable prompt
         """
         result = ""
-        for message in self.to_prompt():
+        for index, message in enumerate(self.to_prompt()):
             content = ""
             for cont in message["content"]:
                 if cont["type"] == "image_url":
@@ -136,6 +136,8 @@ class GPTState(Packet):
                     content += cont["text"]
                 else:
                     assert False
-            result += f"{message['role']}: {content}\n"
+
+            if index > start_index and message["role"] in roles:
+                result += f"{message['role']}: {content}\n"
 
         return result
