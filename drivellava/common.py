@@ -13,10 +13,11 @@ DEFAULT_LLM_PROVIDER = "openai"
 # DEFAULT_LLM_PROVIDER = "ollama"
 
 DEFAULT_MISSION = dedent(
-    """As DriveLLaVA, the autonomous vehicle, your task is to analyze the
-    given image and determine the optimal driving path. Choose the most
-    suitable trajectory option from the list provided based on the
-    visual information."""
+    """As DriveLLaVA, the autonomous vehicle, your task is to analyze the \
+    given image and determine the optimal driving path. Choose the most \
+    suitable trajectory option from the list provided based on the \
+    visual information. Make sure to stay centered in your lane. \
+    If you deviate from the lane make sure to make course corrections"""
 )
 
 

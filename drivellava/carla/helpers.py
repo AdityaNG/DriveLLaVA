@@ -1524,9 +1524,10 @@ class KeyboardControl(object):
         else:
             self._ackermann_control.steer = round(self._steer_cache, 1)
 
-    def set_steering_angle(self, steering_angle):
+    def set_steering_angle(self, steering_angle, world):
         if not self._ackermann_enabled:
             self._control.steer = round(steering_angle, 1)
+            world.player.apply_control(self._control)
         else:
             self._ackermann_control.steer = round(steering_angle, 1)
 

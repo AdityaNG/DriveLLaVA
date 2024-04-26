@@ -48,12 +48,12 @@ def llm_client_factory(llm_provider: str):
 
 
 class GPTVision:
-    def __init__(self, max_history=1):
+    def __init__(self, max_history=10):
         self.client = llm_client_factory(settings.system.SYSTEM_LLM_PROVIDER)
 
         self.previous_messages = GPTState()
         self.max_history = max_history
-        self.num_trajectory_templates = 9
+        self.num_trajectory_templates = 5
         TRAJECTORY_TEMPLATES_NPY = f"./trajectory_templates/proposed_trajectory_templates_simple_{self.num_trajectory_templates}.npy"  # noqa
         TRAJECTORY_TEMPLATES_KMEANS_PKL = f"./trajectory_templates/kmeans_simple_{self.num_trajectory_templates}.pkl"  # noqa
         self.trajectory_encoder = TrajectoryEncoder(
@@ -69,6 +69,11 @@ class GPTVision:
         mission: str,
     ) -> DroneControls:
         # base64_image = encode_opencv_image(image)
+
+        if not settings.system.GPT_ENABLED:
+            gpt_controls = DroneControls(trajectory_index=0, speed_index=0)
+            return gpt_controls
+
         trajectory_templates, colors = (
             self.trajectory_encoder.get_colors_left_to_right()
         )

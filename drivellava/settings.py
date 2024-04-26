@@ -29,6 +29,9 @@ class DroneSettings:
 
 class UISettings:
     UI_ENABLED: bool = str_to_bool(os.getenv("UI_ENABLED", "True"))
+    CARLA_INSTALL_PATH: str = os.getenv(
+        "CARLA_INSTALL_PATH", os.path.expanduser("~/Apps/CARLA")
+    )
 
 
 class SystemSettings:
@@ -46,6 +49,7 @@ class SystemSettings:
         os.getenv("NUM_TRAJECTORY_TEMPLATES", "16"), 16
     )
     TRAJECTORY_SIZE: int = str_to_int(os.getenv("TRAJECTORY_SIZE", "20"), 20)
+    GPT_ENABLED: bool = str_to_bool(os.getenv("GPT_ENABLED", "True"))
 
 
 class Settings:

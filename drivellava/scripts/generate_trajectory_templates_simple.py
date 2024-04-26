@@ -17,8 +17,9 @@ from drivellava.utils import plot_bev_trajectory, plot_steering_traj
 def generate_trajectory_dataset(
     num_templates: int,
     num_frames: int,
-    total_angle: float = np.pi / 2,  # radians
+    total_angle: float = np.pi,  # radians
     trajectory_distance: float = 40.0,  # meters
+    noise: float = 0.0,  # percentage of noise
 ) -> list:
     """
     Generate a list of trajectories.
@@ -37,6 +38,8 @@ def generate_trajectory_dataset(
     All the points on the trajectory must be roughly equidistant from their
         neighbors.
     """
+
+    assert noise >= 0
     trajectory_dataset = []
 
     # Calculate the total distance and angle covered by each trajectory
@@ -65,6 +68,9 @@ def generate_trajectory_dataset(
             x = trajectory[-1][0] + distance_per_frame * np.sin(angle)
             y = trajectory[-1][2] + distance_per_frame * np.cos(angle)
 
+            x = x * (1 + np.random.uniform(-noise, noise))
+            y = y * (1 + np.random.uniform(-noise, noise))
+
             # Append the new point to the current trajectory
             trajectory.append((x, 0, y))
             # trajectory.append((y, 0, -x))
@@ -88,7 +94,7 @@ def generate_trajectory_dataset(
 def main():
 
     NUM_FRAMES = TRAJECTORY_SIZE
-    K = 9
+    K = 5
     PLOT_TRAJ = True
 
     trajectories = []
