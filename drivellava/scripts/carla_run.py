@@ -5,6 +5,7 @@ GPT Vision to make Control Decisions
 import os
 import signal
 import subprocess
+import textwrap
 import time
 import traceback
 from contextlib import contextmanager
@@ -27,7 +28,8 @@ def async_gpt(gpt_input_q: Queue, gpt_output_q: Queue, gpt: GPTVision):
             data = gpt_input_q.get()
             image, drone_state, mission = data
             gpt_controls = gpt.step(image, drone_state, mission)
-            gpt_output_q.put(gpt_controls.model_dump())
+            prompt_str = gpt.previous_messages.to_str()
+            gpt_output_q.put((gpt_controls.model_dump(), prompt_str))
         except Exception as ex:
             print("Exception while calling GPT", ex)
             traceback.print_exc()
@@ -67,6 +69,36 @@ def start_carla():
         process.wait()  # Wait for the process to properly terminate
 
 
+def print_text_image(
+    img,
+    text,
+    width=50,
+    font_size=0.5,
+    font_thickness=2,
+):
+    font = cv2.FONT_HERSHEY_SIMPLEX
+    wrapped_text = textwrap.wrap(text, width=width)
+
+    for i, line in enumerate(wrapped_text):
+        textsize = cv2.getTextSize(line, font, font_size, font_thickness)[0]
+
+        gap = textsize[1] + 10
+
+        y = (i + 1) * gap
+        x = 10
+
+        cv2.putText(
+            img,
+            line,
+            (x, y),
+            font,
+            font_size,
+            (255, 255, 255),
+            font_thickness,
+            lineType=cv2.LINE_AA,
+        )
+
+
 def main():  # pragma: no cover
     """
     Use the Image from the sim and the map to feed as input to GPT
@@ -101,6 +133,7 @@ def main():  # pragma: no cover
 
     try:
         while True:
+            visual = np.zeros((512, 512, 3), dtype=np.uint8)
             client.game_loop()
 
             drone_state = client.get_car_state(default=drone_state)
@@ -124,8 +157,8 @@ def main():  # pragma: no cover
                     image, template_trajectory_3d, color=color, track=False
                 )
 
-            cv2.imshow("prompt", image)
-            # print(type(image), image.dtype)
+            print_text_image(image, "Prompt")
+            visual[0:128, 0:256] = image
 
             image_vis = image_raw.copy()
 
@@ -138,7 +171,7 @@ def main():  # pragma: no cover
                 settings.system.GPT_WAIT
                 and time.time() * 1000 - last_update > 10.0 * 1000
             ):
-                gpt_controls_dict = gpt_output_q.get()
+                gpt_controls_dict, prompt_str = gpt_output_q.get()
                 gpt_controls = DroneControls(**gpt_controls_dict)
 
                 client.set_car_controls(gpt_controls, gpt.trajectory_encoder)
@@ -160,9 +193,20 @@ def main():  # pragma: no cover
                     color=(255, 0, 0),
                     track=True,
                 )
+                print_text_image(image_vis, "DriveLLaVA Controls")
+                visual[0:128, 256:512] = image_vis
 
-                cv2.imshow("DriveLLaVA", image_vis)
+                text_visual = np.zeros((512 - 128, 512, 3), dtype=np.uint8)
+                print_text_image(
+                    text_visual,
+                    prompt_str,
+                    width=80,
+                    font_size=0.35,
+                    font_thickness=1,
+                )
+                visual[128:512, 0:512] = text_visual
 
+            cv2.imshow("DriveLLaVA UI", visual)
             key = cv2.waitKey(10) & 0xFF
             if key == ord("q"):
                 break

@@ -121,3 +121,21 @@ class GPTState(Packet):
 
     def to_prompt(self):
         return [m.to_dict() for m in self.messages]
+
+    def to_str(self) -> str:
+        """
+        Returns a human readable prompt
+        """
+        result = ""
+        for message in self.to_prompt():
+            content = ""
+            for cont in message["content"]:
+                if cont["type"] == "image_url":
+                    content += "<image>"
+                elif cont["type"] == "text":
+                    content += cont["text"]
+                else:
+                    assert False
+            result += f"{message['role']}: {content}\n"
+
+        return result
