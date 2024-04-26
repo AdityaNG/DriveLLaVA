@@ -48,7 +48,7 @@ def llm_client_factory(llm_provider: str):
 
 
 class GPTVision:
-    def __init__(self, max_history=10):
+    def __init__(self, max_history=1):
         self.client = llm_client_factory(settings.system.SYSTEM_LLM_PROVIDER)
 
         self.previous_messages = GPTState()
@@ -77,18 +77,23 @@ class GPTVision:
         trajectory_templates, colors = (
             self.trajectory_encoder.get_colors_left_to_right()
         )
-        color_map = {i: colors[i] for i in range(len(colors))}
+        offset = (self.num_trajectory_templates - 1) // 2
+        color_map = {i - offset: colors[i] for i in range(len(colors))}
+        center = (self.num_trajectory_templates - 1) // 2 - offset
+        first = 0 - offset
+        last = self.num_trajectory_templates - 1 - offset
         traj_str = dedent(
             f"""
             The trajectories are numbered from:
-            [0,{self.num_trajectory_templates-1}]
+            [{first},{last}]
 
-            They are labelled from left to right.
-            Select trajectory 0 to get the left most.
-            Select trajectory {(self.num_trajectory_templates-1)//2} to get a
-             more centered trajectory
-            Select trajectory {self.num_trajectory_templates-1} to get the
-             right most.
+            They are labelled from left to right with a BGR color mapping.
+            Select trajectory {first} (color: {color_map[first]}) to get the \
+            left most.
+            Select trajectory {center} (color: {color_map[center]}) to get \
+            a centered trajectory
+            Select trajectory {last} (color: {color_map[last]}) to get the \
+            right most.
 
             Color Mapping (B,G,R):
             {str(color_map)}
@@ -150,7 +155,7 @@ class GPTVision:
         response = self.client.chat.completions.create(
             model=VISION_MODEL,
             messages=prompt,
-            max_tokens=800,
+            max_tokens=300,
         )
 
         desc = response.choices[0].message.content
@@ -169,7 +174,8 @@ class GPTVision:
 
         # If number of messages is greater than max_history,
         # remove the oldest message. Do not remove the system message
-        if len(self.previous_messages) > self.max_history:
+        # The -2 is to account for the [system message, setup message]
+        if len(self.previous_messages) - 2 > self.max_history:
             self.previous_messages.pop(1)
 
         print(desc)
@@ -200,6 +206,8 @@ class GPTVision:
             ],
             max_tokens=300,
         )
+
+        gpt_controls.trajectory_index += offset
 
         print("gpt:", gpt_controls)
 

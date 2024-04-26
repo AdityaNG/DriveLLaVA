@@ -15,7 +15,7 @@ MISSION: {mission}
 You can select one or more of the following actions as your next immediate \
 action:
  - trajectory_index: select one of the trajectories from those drawn
- - speed_index: select a speed index from one of those provided
+ - speed_index: Select 0 to stop the vehicle and 1 to move the vehicle
 
 Trajectories: {traj_str}
 

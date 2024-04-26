@@ -69,8 +69,8 @@ def start_carla():
 
 def main():  # pragma: no cover
     """
-    Use the Image from the drone and the SLAM map to feed as input to GPT
-    Return the drone controls
+    Use the Image from the sim and the map to feed as input to GPT
+    Return the vehicle controls to the sim and step
     """
 
     mission = settings.system.SYSTEM_MISSION
@@ -134,12 +134,16 @@ def main():  # pragma: no cover
                 gpt_input_q.put(data)
 
             # Get GPT Controls
-            if not gpt_output_q.empty():
+            if not gpt_output_q.empty() or (
+                settings.system.GPT_WAIT
+                and time.time() * 1000 - last_update > 10.0 * 1000
+            ):
                 gpt_controls_dict = gpt_output_q.get()
                 gpt_controls = DroneControls(**gpt_controls_dict)
 
                 client.set_car_controls(gpt_controls, gpt.trajectory_encoder)
                 gpt.previous_messages.timestamp = last_update
+                last_update = gpt_controls.timestamp
 
                 template_trajectory = trajectory_templates[
                     gpt_controls.trajectory_index

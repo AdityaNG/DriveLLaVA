@@ -24,7 +24,7 @@ class CarlaClient:
         host="127.0.0.1",
         port=2000,
         sync=True,
-        autopilot=True,
+        autopilot=False,
         width=256,
         height=128,
         rolename="hero",
@@ -45,7 +45,7 @@ class CarlaClient:
             settings = self.sim_world.get_settings()
             # if not settings.synchronous_mode:
             settings.synchronous_mode = True
-            settings.fixed_delta_seconds = 3.0
+            settings.fixed_delta_seconds = 1.0
             self.sim_world.apply_settings(settings)
 
             traffic_manager = self.client.get_trafficmanager()
@@ -127,8 +127,8 @@ class CarlaClient:
         """
         Set the car controls
         """
-        return
-        controls.speed_index = 1
+        # return
+        # controls.speed_index = 1
         if controls.speed_index == 0:
             self.world.player.enable_constant_velocity(
                 carla.Vector3D(0, 0, 0)  # 0 Km/h
@@ -144,13 +144,13 @@ class CarlaClient:
                 2.0
                 * (
                     float(controls.trajectory_index)
-                    / trajectory_encoder.num_trajectory_templates
+                    / (trajectory_encoder.num_trajectory_templates - 1)
                 )
                 - 1.0
-            )
+            ) * 0.7
 
-            if abs(steering_angle) < 0.2:
-                steering_angle = 0.0
+            # if abs(steering_angle) < 0.2:
+            #     steering_angle = 0.0
 
             print("steering_angle", steering_angle)
 

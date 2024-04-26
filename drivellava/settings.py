@@ -50,6 +50,7 @@ class SystemSettings:
     )
     TRAJECTORY_SIZE: int = str_to_int(os.getenv("TRAJECTORY_SIZE", "20"), 20)
     GPT_ENABLED: bool = str_to_bool(os.getenv("GPT_ENABLED", "True"))
+    GPT_WAIT: bool = str_to_bool(os.getenv("GPT_WAIT", "True"))
 
 
 class Settings:
